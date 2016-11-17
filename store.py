@@ -33,12 +33,6 @@ class Archive:
 
         return results
 
-    def _strip_context(self, result):
-        try:
-            del result['context']
-        except KeyError:
-            pass
-
     def insert(self, result):
         suite_id = result['suite_id']
         case_id = result['case_id']
@@ -90,3 +84,14 @@ class GoldenStore:
 
     def _golden_filename(self, suite_id, case_id):
         return os.path.join(self.root, suite_id, case_id + '.json')
+
+    def _strip_result(self, result):
+        # we don't do a deep copy until we have deleted the potentially large
+        # "context" key
+        shallow_copied_result = copy.copy(result)
+        try:
+            del shallow_copied_result['context']
+        except KeyError:
+            pass
+        deeply_copied_result = copy.deepcopy(shallow_copied_result)
+        return deeply_copied_result
