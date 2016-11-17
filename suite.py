@@ -1,4 +1,5 @@
 import datetime
+import pydoc
 
 from hdatt.util import print_error, find_here_or_in_parents, AbortError
 
@@ -43,6 +44,7 @@ class Suite:
     def diff(self, golden_result, result):
         raise NotImplementedError()
 
+    @property
     def id(self):
         return type(self).__name__
 
@@ -63,7 +65,7 @@ def collect_suites(directory):
             msg = 'Error while instatiating suite "{}"'
             raise AbortError(msg.format(suite_class_name))
 
-        suite_id = suite.id()
+        suite_id = suite.id
         if suite_id in mapping:
             raise AbortError('Duplicate suite id "{}"'.format(suite_id))
         elif '.' in suite_id:

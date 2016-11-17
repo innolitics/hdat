@@ -22,8 +22,7 @@ def tmp_archive():
 
 
 class BasicSuiteA(Suite):
-    def id(self):
-        return 'a'
+    id = 'a'
 
     def collect(self):
         return OrderedDict([
@@ -43,8 +42,7 @@ class BasicSuiteA(Suite):
 
 
 class BasicSuiteB(Suite):
-    def id(cls):
-        return 'b'
+    id = 'b'
 
     def collect(self):
         return {

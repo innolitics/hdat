@@ -3,6 +3,7 @@ import os
 import argparse
 import datetime
 import pydoc
+import traceback
 
 from hdatt.util import print_error, AbortError
 
@@ -20,16 +21,15 @@ def run_cases(suites, golden_store, archive, git_info, cases):
     for suite_id, case_id in cases:
         suite = suites[suite_id]
         try:
-            passed = run_case(suite, golden_store, archive, git_info, case_id)
-        except Exception as e:
-            msg = 'Error while running "{}.{}": {}'
-            print_error(msg.format(suite_id, case_id, e))
-            passed = False
+            passed, comments = run_case(suite, golden_store, archive, git_info, case_id)
+        except:
+            passed, comments = False, 'Error while running "{}.{}"'
+            traceback.print_exc()
 
         if passed:
-            print('PASS "{}.{}"'.format(suite_id, case_id))
+            print('PASS "{}.{}" {}'.format(suite_id, case_id, comments))
         else:
-            print('FAIL "{}.{}"'.format(suite_id, case_id))
+            print('FAIL "{}.{}" {}'.format(suite_id, case_id, comments))
             num_failures += 1
 
     if num_failures > 0:
@@ -42,7 +42,7 @@ def run_case(suite, golden_store, archive, git_info, case_id):
     validate_result(run_result)
     metrics, context = run_result
 
-    golden_result = golden_store.select_golden(suite.id(), case_id)
+    golden_result = golden_store.select_golden(suite.id, case_id)
 
     if golden_result is None:
         passed, comments = False, 'No golden result present'
@@ -51,7 +51,7 @@ def run_case(suite, golden_store, archive, git_info, case_id):
 
     result = build_result(suite, git_info, case_id, metrics, context, passed)
     archive.insert(result)
-    return passed
+    return passed, comments
 
 
 def validate_result(run_result):
@@ -63,7 +63,7 @@ def validate_result(run_result):
 def build_result(suite, git_info, case_id, metrics, context, passed):
     run_datetime = datetime.datetime.utcnow()
     result = {
-        'suite_id': suite.id(),
+        'suite_id': suite.id,
         'case_id': case_id,
         'commit': git_info['commit'],
         'repo_dirty': git_info['dirty'],
