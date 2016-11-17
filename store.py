@@ -17,17 +17,14 @@ class Archive:
         else:
             return self.read_result(result_filename)
 
-    def select_all(self, suite_id, case_id):
-        case_directory = os.path.join(self.root, suite_id, case_id)
+    def select_all(self, *args):
+        top_directory = os.path.join(self.root, *args)
+
+        result_filenames = []
+        for dirpath, _, filenames in os.walk(top_directory):
+            result_filenames.extend([os.path.join(dirpath, p) for p in filenames])
+
         results = []
-
-        try:
-
-            result_filenames_relative = os.listdir(case_directory)
-            result_filenames = [os.path.join(case_directory, p) for p in result_filenames_relative]
-        except FileNotFoundError:
-            result_filenames = []
-
         for filename in result_filenames:
             result = self.read_result(filename)
             self._strip_context(result)
@@ -90,7 +87,7 @@ class GoldenStore:
 
         golden_filename = self._golden_filename(suite_id, case_id)
         with open(golden_filename, 'w') as golden_file:
-            json.dump(result, golden_file)
+            json.dump(result, golden_file, sort_keys=True, indent=4)
 
     def _golden_filename(self, suite_id, case_id):
         return os.path.join(self.root, suite_id, case_id + '.json')

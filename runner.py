@@ -23,7 +23,8 @@ def run_cases(suites, golden_store, archive, git_info, cases):
         try:
             passed, comments = run_case(suite, golden_store, archive, git_info, case_id)
         except:
-            passed, comments = False, 'Error while running "{}.{}"'
+            comments = 'Error "{}.{}"'.format(suite_id, case_id)
+            passed = False
             traceback.print_exc()
 
         if passed:

@@ -15,13 +15,26 @@ class TestMainRun:
             main_with_mocks(['run'])
         assert '3 of 3' in str(e)
 
-        main_with_mocks(['verify', 'a.1'])
+        main_with_mocks(['verify', 'a/1'])
 
         with pytest.raises(AbortError) as e:
             main_with_mocks(['run'])
         assert '2 of 3' in str(e)
 
-        main_with_mocks(['verify', 'a.2'])
-        main_with_mocks(['verify', 'b.3'])
+        main_with_mocks(['verify', 'a/2'])
+        main_with_mocks(['verify', 'b/3'])
 
         main_with_mocks(['run'])
+
+    def test_show_most_recent(self, main_with_mocks, capsys):
+        with pytest.raises(AbortError) as e:
+            main_with_mocks(['run', 'a/1'])
+
+        with pytest.raises(AbortError) as e:
+            main_with_mocks(['show'])
+
+        _, err = capsys.readouterr()
+        assert 'showing "a/1' in str(err)
+
+    # def test_diff(self):
+        # pass

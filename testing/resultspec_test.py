@@ -21,6 +21,18 @@ def mock_results():
             'result_id': 'r2',
             'ran_on': 101,
         },
+        {
+            'suite_id': 'a',
+            'case_id': '2',
+            'result_id': 'r3',
+            'ran_on': 103,
+        },
+        {
+            'suite_id': 'b',
+            'case_id': '1',
+            'result_id': 'r4',
+            'ran_on': 104,
+        },
     ]
 
 
@@ -47,19 +59,27 @@ class TestResolveResultSpec:
             resolve_resultspec(archive, resultspec)
 
     def test_fully_qualified(self, archive, mock_results):
-        resultspec = 'a.1.r2'
+        resultspec = 'a/1/r2'
         assert resolve_resultspec(archive, resultspec) == mock_results[1]
 
     def test_fully_qualified_missing(self, archive):
-        resultspec = 'a.1.huh'
+        resultspec = 'a/1/huh'
         with pytest.raises(AbortError):
             resolve_resultspec(archive, resultspec)
 
-    def test_most_recent(self, archive, mock_results):
-        resultspec = 'a.1'
+    def test_most_recent_in_case(self, archive, mock_results):
+        resultspec = 'a/1'
         assert resolve_resultspec(archive, resultspec) == mock_results[1]
 
+    def test_most_recent_in_suite(self, archive, mock_results):
+        resultspec = 'a'
+        assert resolve_resultspec(archive, resultspec) == mock_results[2]
+
+    def test_most_recent_overall(self, archive, mock_results):
+        resultspec = ''
+        assert resolve_resultspec(archive, resultspec) == mock_results[3]
+
     def test_most_recent_missing(self, archive):
-        resultspec = 'a.2'
+        resultspec = 'a/huh'
         with pytest.raises(AbortError):
             resolve_resultspec(archive, resultspec)

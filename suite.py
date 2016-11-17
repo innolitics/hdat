@@ -48,9 +48,8 @@ class Suite:
     def id(self):
         return type(self).__name__
 
-    def build_result_id(self, result_without_id):
-        seconds_timestamp = int(result_without_id['ran_on'])
-        return '{}-{}'.format(seconds_timestamp, result_without_id['commit'])
+    def build_result_id(self, result):
+        return '{}_{}'.format(result['ran_on'], result['commit'])
 
 
 def collect_suites(directory):
@@ -68,8 +67,8 @@ def collect_suites(directory):
         suite_id = suite.id
         if suite_id in mapping:
             raise AbortError('Duplicate suite id "{}"'.format(suite_id))
-        elif '.' in suite_id:
-            raise AbortError('Invalid suite id "{}", no "." allowed'.format(suite_id))
+        elif '/' in suite_id:
+            raise AbortError('Invalid suite id "{}", no "/" allowed in suite ids'.format(suite_id))
         else:
             mapping[suite_id] = suite
     return mapping

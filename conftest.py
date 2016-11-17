@@ -5,6 +5,7 @@ import pytest
 
 from hdatt.store import GoldenStore, Archive
 from hdatt.suite import Suite
+from hdatt.resultspec import print_resultspec
 
 
 @pytest.fixture
@@ -21,7 +22,26 @@ def tmp_archive():
     tmp_directory.cleanup()
 
 
-class BasicSuiteA(Suite):
+class BaseSuite(Suite):
+    def verify(self, old, new):
+        return old == new, 'Looks good!'
+
+    def run(self, case_input):
+        return case_input, {}
+
+    def show(self, result):
+        raise NotImplementedError('showing "{}"'.format(
+            print_resultspec(result)
+        ))
+
+    def diff(self, golden_result, result):
+        raise NotImplementedError('diffing "{}" and "{}"'.format(
+            print_resultspec(golden_result),
+            print_resultspec(result)
+        ))
+
+
+class BasicSuiteA(BaseSuite):
     id = 'a'
 
     def collect(self):
@@ -30,34 +50,14 @@ class BasicSuiteA(Suite):
             ('2', 20),
         ])
 
-    def verify(self, old, new):
-        return old == new, 'Looks good!'
 
-    def run(self, case_input):
-        return case_input, {}
-
-    def build_result_id(self, result_without_id):
-        timestamp = result_without_id['ran_on']
-        return '{}-{}'.format(timestamp, result_without_id['commit'])
-
-
-class BasicSuiteB(Suite):
+class BasicSuiteB(BaseSuite):
     id = 'b'
 
     def collect(self):
         return {
             '3': 30,
         }
-
-    def verify(self, old, new):
-        return old == new, 'Looks good!'
-
-    def run(self, case_input):
-        return case_input, {}
-
-    def build_result_id(self, result_without_id):
-        timestamp = result_without_id['ran_on']
-        return '{}-{}'.format(timestamp, result_without_id['commit'])
 
 
 @pytest.fixture

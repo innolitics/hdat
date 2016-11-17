@@ -10,7 +10,7 @@ def resolve_casespecs(suites, casespecs):
 
 def resolve_casespec(suites, casespec):
     cases = []
-    spec_parts = casespec.split('.')
+    spec_parts = casespec.split('/')
     if casespec == '':
         for suite_id, suite in suites.items():
             for case_id in suite.collect():

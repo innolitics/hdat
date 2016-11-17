@@ -1,4 +1,5 @@
 import os
+import traceback
 
 from hdatt.util import AbortError
 
@@ -8,15 +9,21 @@ def resolve_resultspec(archive, resultspec):
         try:
             return archive.read_result(resultspec)
         except Exception as e:
-            msg = 'Unable to read resultspec "{}": {}'
-            raise AbortError(msg.format(resultspec, e))
+            traceback.print_exc()
+            msg = 'Unable to read resultspec "{}"'
+            raise AbortError(msg.format(resultspec))
 
-    resultspec_parts = resultspec.split('.')
+        
+    if resultspec == '':
+        resultspec_parts = []
+    else:
+        resultspec_parts = resultspec.split('/')
 
-    if len(resultspec_parts) == 2:
+    if len(resultspec_parts) < 3:
+        # TODO: make this faster in the event there are many results
         results = archive.select_all(*resultspec_parts)
         if len(results) == 0:
-            msg = 'Unable to locate any results for case "{}" in the archive at "{}"'
+            msg = 'Unable to locate any results matching "{}" in the archive at "{}"'
             raise AbortError(msg.format(resultspec, archive.root))
         else:
             return results[-1]
@@ -32,7 +39,17 @@ def resolve_resultspec(archive, resultspec):
     else:
         msg = 'Invalid result spec "{}". ' + \
               'Resultspecs must point to a result file, ' + \
-              'have the fully qualified form "SUITEID.CASEID.RESULTID", ' + \
-              'or have the form "SUITEID.CASEID" in which case the ' + \
-              'most resent result for that case is used.'
+              'have the fully qualified form "SUITEID/CASEID/RESULTID", ' + \
+              'or if it is partially qualified, such as "SUITEID/CASEID", ' + \
+              'it will select the most recent result that matches.'
         raise AbortError(msg.format(resultspec))
+
+
+def print_resultspec(result):
+    try:
+        suite_id = result['suite_id']
+        case_id = result['case_id']
+        result_id = result['result_id']
+        return '{}/{}/{}'.format(suite_id, case_id, result_id)
+    except KeyError:
+        return 'Invalid result "{}"'.format(repr(result))
