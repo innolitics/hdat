@@ -1,4 +1,5 @@
 import tempfile
+from collections import OrderedDict
 
 import pytest
 
@@ -25,16 +26,20 @@ class BasicSuiteA(Suite):
         return 'a'
 
     def collect(self):
-        return {
-            '1': 10,
-            '2': 20,
-        }
+        return OrderedDict([
+            ('1', 10),
+            ('2', 20),
+        ])
 
     def verify(self, old, new):
         return old == new, 'Looks good!'
 
     def run(self, case_input):
         return case_input, {}
+
+    def build_result_id(self, result_without_id):
+        timestamp = result_without_id['ran_on']
+        return '{}-{}'.format(timestamp, result_without_id['commit'])
 
 
 class BasicSuiteB(Suite):
@@ -51,6 +56,10 @@ class BasicSuiteB(Suite):
 
     def run(self, case_input):
         return case_input, {}
+
+    def build_result_id(self, result_without_id):
+        timestamp = result_without_id['ran_on']
+        return '{}-{}'.format(timestamp, result_without_id['commit'])
 
 
 @pytest.fixture

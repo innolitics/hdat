@@ -51,4 +51,4 @@ def main(arguments, suites, golden_store, archive, git_info):
         diff_result(suites, golden_result, result)
     elif args.command == 'verify':
         result = resolve_resultspec(archive, args.resultspec)
-        verify_result(archive, golden_store, result)
+        golden_store.insert(result)

@@ -24,6 +24,7 @@ def run_cases(suites, golden_store, archive, git_info, cases):
         except Exception as e:
             msg = 'Error while running "{}.{}": {}'
             print_error(msg.format(suite_id, case_id, e))
+            passed = False
 
         if passed:
             print('PASS "{}.{}"'.format(suite_id, case_id))

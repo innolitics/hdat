@@ -31,7 +31,6 @@ def archive(tmp_archive, mock_results):
     return tmp_archive
 
 
-@pytest.mark.david
 class TestResolveResultSpec:
     def test_existing_file(self, archive, mock_results):
         resultspec = archive._result_filename('a', '1', 'r1')

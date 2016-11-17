@@ -51,7 +51,6 @@ class Suite:
         return '{}-{}'.format(seconds_timestamp, result_without_id['commit'])
 
 
-
 def collect_suites(directory):
     suite_classes = _collect_suite_classes(directory)
     mapping = {}
