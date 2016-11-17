@@ -29,8 +29,8 @@ def parse_arguments(arguments):
 
     verify_help = 'move result metrics from archive to the golden store'
     verify_parser = subparsers.add_parser('verify', help=verify_help)
-    verify_result_help = 'result being stripped and moved into the golden store'
-    verify_parser.add_argument('resultspec', metavar='<result>', help=verify_result_help)
+    verify_result_help = 'results to be stripped and moved into the golden store'
+    verify_parser.add_argument('resultspec', nargs='?', default='', metavar='<result>', help=verify_result_help)
 
     return parser.parse_args(arguments)
 
