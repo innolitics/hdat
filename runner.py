@@ -66,7 +66,7 @@ def build_result(suite, git_info, case_id, metrics, context, passed):
         'case_id': case_id,
         'commit': git_info['commit'],
         'repo_dirty': git_info['dirty'],
-        'ran_on': str(run_datetime),
+        'ran_on': run_datetime.timestamp(),
         'metrics': metrics,
         'context': context,
         'passed': passed,

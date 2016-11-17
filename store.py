@@ -22,15 +22,26 @@ class Archive:
         results = []
 
         try:
-            result_filenames = [os.path.join(case_directory, p) for p in os.listdir(case_directory)]
+
+            result_filenames_relative = os.listdir(case_directory)
+            result_filenames = [os.path.join(case_directory, p) for p in result_filenames_relative]
         except FileNotFoundError:
             result_filenames = []
 
         for filename in result_filenames:
             result = self.read_result(filename)
-            del result['context']
+            self._strip_context(result)
             results.append(result)
+
+        results_sorted = sorted(results, key=lambda r: r['ran_on'])
+
         return results
+
+    def _strip_context(self, result):
+        try:
+            del result['context']
+        except KeyError:
+            pass
 
     def insert(self, result):
         suite_id = result['suite_id']

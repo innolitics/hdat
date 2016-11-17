@@ -47,12 +47,7 @@ class Suite:
         return type(self).__name__
 
     def build_result_id(self, result_without_id):
-        # parsing the date time back into a timestamp seems crazy, but it is
-        # necessary so that we can:
-        # 1. Keep a clean method API for people wanting to overwrite the method
-        # 2. Ensure that the `ran_on` and id timestamp are for the same date time
-        ran_on_datetime = datetime.datetime.strptime(result_without_id['ran_on'], '%Y-%m-%d %H:%M:%S.%f')
-        seconds_timestamp = int(ran_on_datetime.timestamp())
+        seconds_timestamp = int(result_without_id['ran_on'])
         return '{}-{}'.format(seconds_timestamp, result_without_id['commit'])
 
 
