@@ -27,7 +27,6 @@ class Archive:
         results = []
         for filename in result_filenames:
             result = self.read_result(filename)
-            self._strip_context(result)
             results.append(result)
 
         results_sorted = sorted(results, key=lambda r: r['ran_on'])
@@ -91,14 +90,3 @@ class GoldenStore:
 
     def _golden_filename(self, suite_id, case_id):
         return os.path.join(self.root, suite_id, case_id + '.json')
-
-    def _strip_result(self, result):
-        # we don't do a deep copy until we have deleted the potentially large
-        # "context" key
-        shallow_copied_result = copy.copy(result)
-        try:
-            del shallow_copied_result['context']
-        except KeyError:
-            pass
-        deeply_copied_result = copy.deepcopy(shallow_copied_result)
-        return deeply_copied_result
