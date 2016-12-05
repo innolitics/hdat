@@ -31,7 +31,7 @@ class Archive:
 
         results_sorted = sorted(results, key=lambda r: r['ran_on'])
 
-        return results
+        return results_sorted
 
     def insert(self, result):
         suite_id = result['suite_id']

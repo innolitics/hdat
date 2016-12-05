@@ -1,5 +1,9 @@
 import argparse
 import traceback
+from collections import ChainMap, OrderedDict
+
+import tabulate
+from orderedset._orderedset import OrderedSet
 
 from hdatt.resultspec import resolve_resultspec, print_resultspec
 from hdatt.casespec import resolve_casespecs, select_suite
@@ -32,6 +36,11 @@ def parse_arguments(arguments):
     verify_result_help = 'results to be stripped and moved into the golden store'
     verify_parser.add_argument('resultspec', nargs='?', default='', metavar='<result>', help=verify_result_help)
 
+    report_help = 'Print a report from the most recent results for a given suite.'
+    report_parser = subparsers.add_parser('report', help=report_help)
+    report_help = 'suite to generate and print out a report for.'
+    report_parser.add_argument('suitespec', default='', metavar='<suite>', help=report_help)
+
     return parser.parse_args(arguments)
 
 
@@ -54,7 +63,17 @@ def main(arguments, suites, golden_store, archive, git_info):
     elif args.command == 'verify':
         result = resolve_resultspec(archive, args.resultspec)
         golden_store.insert(result)
+    elif args.command == 'report':
+        suite = select_suite(suites, args.suitespec)
+        result_specs = ['{}/{}'.format(args.suitespec, case_id) for case_id in suite.collect()]
+        results = [resolve_resultspec(archive, result_spec) for result_spec in result_specs]
+        table = []
+        for result in results:
+            row = OrderedDict({'case id': result['case_id']})
+            row.update(result['metrics'])
+            table.append(row)
 
+        print(tabulate.tabulate(table, headers="keys",  tablefmt="psql", floatfmt=".5f"))
 
 def show_result(suites, result):
     suite = select_suite(suites, result['suite_id'])
