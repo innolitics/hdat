@@ -18,6 +18,7 @@ def parse_arguments(arguments):
     run_help = 'run cases, store results in archive, compare against goldens'
     run_parser = subparsers.add_parser('run', help=run_help)
     run_parser.add_argument('casespecs', nargs='*', default=[''], metavar='<case>')
+    run_parser.add_argument('--collect-only', default=False, action='store_true')
 
     show_help = 'visualize a single result'
     show_parser = subparsers.add_parser('show', help=show_help)
@@ -50,7 +51,10 @@ def main(arguments, suites, golden_store, archive, git_info):
     if args.command is None:
         parse_arguments(['-h'])
 
-    if args.command == 'run':
+    if args.command == 'run' and args.collect_only:
+        cases = resolve_casespecs(suites, args.casespecs)
+        print("\n".join(['{}/{}'.format(s, c) for s, c in cases]))
+    elif args.command == 'run':
         cases = resolve_casespecs(suites, args.casespecs)
         run_cases(suites, golden_store, archive, git_info, cases)
     elif args.command == 'show':
@@ -74,6 +78,7 @@ def main(arguments, suites, golden_store, archive, git_info):
             table.append(row)
 
         print(tabulate.tabulate(table, headers="keys",  tablefmt="psql", floatfmt=".5f"))
+
 
 def show_result(suites, result):
     suite = select_suite(suites, result['suite_id'])
