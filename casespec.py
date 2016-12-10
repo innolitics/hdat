@@ -47,3 +47,7 @@ def select_case(suite, case_id):
         raise AbortError(msg.format(case_id, all_cases))
     else:
         return case_map[case_id]
+
+
+def print_casespec(suite_id, case_id):
+    return '{}/{}'.format(suite_id, case_id)

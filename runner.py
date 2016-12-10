@@ -6,6 +6,7 @@ import pydoc
 import traceback
 
 from hdatt.util import print_error, AbortError
+from hdatt.casespec import print_casespec
 
 
 def run_cases(suites, golden_store, archive, git_info, cases):
@@ -20,17 +21,18 @@ def run_cases(suites, golden_store, archive, git_info, cases):
     num_failures = 0
     for suite_id, case_id in cases:
         suite = suites[suite_id]
+        casespec = print_casespec(suite_id, case_id)
         try:
             passed, comments = run_case(suite, golden_store, archive, git_info, case_id)
         except:
-            comments = 'Error "{}.{}"'.format(suite_id, case_id)
+            comments = 'Error "{}"'.format(casespec)
             passed = False
             traceback.print_exc()
 
         if passed:
-            print('PASS "{}.{}" {}'.format(suite_id, case_id, comments))
+            print('PASS "{}" {}'.format(casespec, comments))
         else:
-            print('FAIL "{}.{}" {}'.format(suite_id, case_id, comments))
+            print('FAIL "{}" {}'.format(casespec, comments))
             num_failures += 1
 
     if num_failures > 0:
@@ -76,5 +78,3 @@ def build_result(suite, git_info, case_id, metrics, context, passed):
 
     result['result_id'] = suite.build_result_id(result)
     return result
-
-
