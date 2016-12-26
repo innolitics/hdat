@@ -33,7 +33,7 @@ def resolve_casespec(suites, casespec):
 def select_suite(suites, suite_id):
     if suite_id not in suites:
         all_suites = '\n- '.join(suites.keys())
-        msg = 'Unknown suite id "{}". Available suites:\n{}'
+        msg = 'Unknown suite id "{}". Available suites:\n- {}'
         raise AbortError(msg.format(suite_id, all_suites))
     else:
         return suites[suite_id]
@@ -43,7 +43,7 @@ def select_case(suite, case_id):
     case_map = suite.collect()
     if case_id not in case_map:
         all_cases = '\n- '.join(case_map.keys())
-        msg = 'Unknown case id "{}". Available cases:\n{}'
+        msg = 'Unknown case id "{}". Available cases:\n- {}'
         raise AbortError(msg.format(case_id, all_cases))
     else:
         return case_map[case_id]
