@@ -22,6 +22,7 @@ def run_cases(suites, golden_store, archive, git_info, cases):
     for suite_id, case_id in cases:
         suite = suites[suite_id]
         casespec = print_casespec(suite_id, case_id)
+        print('STARTING CASE "{}"'.format(casespec))
         try:
             passed, comments = run_case(suite, golden_store, archive, git_info, case_id)
         except:
@@ -30,10 +31,12 @@ def run_cases(suites, golden_store, archive, git_info, cases):
             traceback.print_exc()
 
         if passed:
-            print('PASS "{}" {}'.format(casespec, comments))
+            result = 'PASS'
         else:
-            print('FAIL "{}" {}'.format(casespec, comments))
+            result = 'FAIL'
             num_failures += 1
+
+        print('{} case "{}"\n{}\n'.format(result, casespec, comments))
 
     if num_failures > 0:
         raise AbortError('{} of {} tests failed'.format(num_failures, len(cases)))
