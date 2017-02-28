@@ -2,9 +2,6 @@ import argparse
 import traceback
 from collections import ChainMap, OrderedDict
 
-import tabulate
-from orderedset._orderedset import OrderedSet
-
 from hdatt.resultspec import resolve_resultspec, print_resultspec
 from hdatt.casespec import resolve_casespecs, select_suite
 from hdatt.runner import run_cases
@@ -77,7 +74,7 @@ def main(arguments, suites, golden_store, archive, git_info):
             row.update(result['metrics'])
             table.append(row)
 
-        print(tabulate.tabulate(table, headers="keys",  tablefmt="psql", floatfmt=".5f"))
+        # TODO: print results
 
 
 def show_result(suites, result):
