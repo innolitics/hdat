@@ -1,7 +1,7 @@
 import datetime
 import pydoc
 
-from hdatt.util import print_error, find_here_or_in_parents, AbortError
+from .util import print_error, find_here_or_in_parents, AbortError
 
 
 class Suite:

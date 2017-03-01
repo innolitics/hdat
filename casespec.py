@@ -1,4 +1,4 @@
-from hdatt.util import AbortError, remove_duplicates
+from .util import AbortError, remove_duplicates
 
 
 def resolve_casespecs(suites, casespecs):

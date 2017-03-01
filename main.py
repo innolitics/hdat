@@ -2,10 +2,10 @@ import argparse
 import traceback
 from collections import ChainMap, OrderedDict
 
-from hdatt.resultspec import resolve_resultspec, print_resultspec
-from hdatt.casespec import resolve_casespecs, select_suite
-from hdatt.runner import run_cases
-from hdatt.util import AbortError
+from .resultspec import resolve_resultspec, print_resultspec
+from .casespec import resolve_casespecs, select_suite
+from .runner import run_cases
+from .util import AbortError
 
 
 def parse_arguments(arguments):

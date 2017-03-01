@@ -1,7 +1,7 @@
 import os
 import traceback
 
-from hdatt.util import AbortError
+from .util import AbortError
 
 
 def resolve_resultspec(archive, resultspec):

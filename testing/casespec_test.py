@@ -1,7 +1,7 @@
 import pytest
 
-from hdatt.casespec import resolve_casespecs
-from hdatt.util import AbortError
+from ..casespec import resolve_casespecs
+from ..util import AbortError
 
 
 class TestSelectCases:

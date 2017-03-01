@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-from hdatt.resultspec import resolve_resultspec
-from hdatt.util import AbortError
+from ..resultspec import resolve_resultspec
+from ..util import AbortError
 
 
 @pytest.fixture

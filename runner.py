@@ -5,8 +5,8 @@ import datetime
 import pydoc
 import traceback
 
-from hdatt.util import print_error, AbortError
-from hdatt.casespec import print_casespec
+from .util import print_error, AbortError
+from .casespec import print_casespec
 
 
 def run_cases(suites, golden_store, archive, git_info, cases):
