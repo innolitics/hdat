@@ -78,7 +78,9 @@ def main(arguments, suites, golden_store, archive, git_info):
             table.append(row)
 
         print(tabulate.tabulate(table, headers="keys",  tablefmt="psql", floatfmt=".5f"))
-        # TODO: Find better way to print results table. Currently it only works with feature detection hdat.
+        # TODO: Find better way to print results table. Currently it only works
+        # with feature detection hdat.  e.g. allow the user to specify two
+        # metrics (e.g. using jsonrefs) for the x and y axis of the table
 
 
 def show_result(suites, result):
