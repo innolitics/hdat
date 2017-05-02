@@ -75,11 +75,10 @@ def main(arguments, suites, golden_store, archive, git_info):
             row = OrderedDict({'case id': result['case_id']})
             row['TPF'] = result['metrics']['TPF']
             row['FPF'] = result['metrics']['FPF']
-            # row.update(result['metrics'])
             table.append(row)
 
         print(tabulate.tabulate(table, headers="keys",  tablefmt="psql", floatfmt=".5f"))
-        # TODO: print results
+        # TODO: Find better way to print results table. Currently it only works with feature detection hdat.
 
 
 def show_result(suites, result):
