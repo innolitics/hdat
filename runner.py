@@ -55,7 +55,7 @@ def run_case(suite, golden_store, archive, git_info, case_id):
     else:
         passed, comments = suite.verify(golden_result['metrics'], metrics)
 
-    result = build_result(suite, git_info, case_id, metrics, context, passed)
+    result = build_result(suite, git_info, case_id, case_input, metrics, context, passed)
     archive.insert(result)
     return passed, comments
 
@@ -66,11 +66,12 @@ def validate_result(run_result):
         raise ValueError(msg.format(repr(run_result)))
 
 
-def build_result(suite, git_info, case_id, metrics, context, passed):
+def build_result(suite, git_info, case_id, case_input, metrics, context, passed):
     run_datetime = datetime.datetime.utcnow()
     result = {
         'suite_id': suite.id,
         'case_id': case_id,
+        'case_input': case_input,
         'commit': git_info['commit'],
         'repo_dirty': git_info['dirty'],
         'ran_on': run_datetime.timestamp(),
