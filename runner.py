@@ -5,7 +5,7 @@ import datetime
 import pydoc
 import traceback
 
-from .util import print_error, AbortError
+from .util import print_error
 from .casespec import print_casespec
 
 
@@ -18,28 +18,27 @@ def run_cases(suites, golden_store, archive, git_info, cases):
 
     This function assumes that all cases are valid.
     '''
-    num_failures = 0
+    cases_status = {
+        'pass': 0,
+        'fail': 0,
+        'error': 0,
+        'unknown': 0,
+    }
     for suite_id, case_id in cases:
         suite = suites[suite_id]
         casespec = print_casespec(suite_id, case_id)
         print('STARTING CASE "{}"'.format(casespec))
         try:
-            passed, comments = run_case(suite, golden_store, archive, git_info, case_id)
+            status, comments = run_case(suite, golden_store, archive, git_info, case_id)
         except:
             comments = 'Error "{}"'.format(casespec)
-            passed = False
+            status = 'error'
             traceback.print_exc()
 
-        if passed:
-            result = 'PASS'
-        else:
-            result = 'FAIL'
-            num_failures += 1
+        cases_status[status] += 1
+        print('Case "{}" status: {}\n{}\n'.format(casespec, status.upper(), comments))
 
-        print('{} case "{}"\n{}\n'.format(result, casespec, comments))
-
-    if num_failures > 0:
-        raise AbortError('{} of {} tests failed'.format(num_failures, len(cases)))
+    return cases_status
 
 
 def run_case(suite, golden_store, archive, git_info, case_id):
@@ -51,13 +50,14 @@ def run_case(suite, golden_store, archive, git_info, case_id):
     golden_result = golden_store.select_golden(suite.id, case_id)
 
     if golden_result is None:
-        passed, comments = False, 'No golden result present'
+        status, comments = 'unknown', 'No golden result present'
     else:
         passed, comments = suite.verify(golden_result['metrics'], metrics)
+        status = 'pass' if passed else 'error'
 
-    result = build_result(suite, git_info, case_id, case_input, metrics, context, passed)
+    result = build_result(suite, git_info, case_id, case_input, metrics, context, status)
     archive.insert(result)
-    return passed, comments
+    return status, comments
 
 
 def validate_result(run_result):
@@ -66,7 +66,7 @@ def validate_result(run_result):
         raise ValueError(msg.format(repr(run_result)))
 
 
-def build_result(suite, git_info, case_id, case_input, metrics, context, passed):
+def build_result(suite, git_info, case_id, case_input, metrics, context, status):
     run_datetime = datetime.datetime.utcnow()
     result = {
         'suite_id': suite.id,
@@ -77,7 +77,7 @@ def build_result(suite, git_info, case_id, case_input, metrics, context, passed)
         'ran_on': run_datetime.timestamp(),
         'metrics': metrics,
         'context': context,
-        'passed': passed,
+        'status': status,
     }
 
     result['result_id'] = suite.build_result_id(result)

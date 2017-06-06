@@ -24,6 +24,10 @@ def parse_arguments(arguments):
     show_result_help = 'result specifier to show'
     show_parser.add_argument('resultspec', nargs="?", default='', metavar='<result>', help=show_result_help)
 
+    runshow_help = 'run then visualize a single result'
+    runshow_parser = subparsers.add_parser('runshow', help=runshow_help)
+    runshow_parser.add_argument('casespecs', nargs=1, default='', metavar='<result>')
+
     diff_help = 'compare two results'
     diff_parser = subparsers.add_parser('diff', help=diff_help)
     diff_golden_help = 'result to compare to (defaults to current golden for the case)'
@@ -44,6 +48,15 @@ def parse_arguments(arguments):
     return parser.parse_args(arguments)
 
 
+def _format_cases_status(cases_status):
+    return 'PASS: {}, FAIL: {}, UNKNOWN: {}, ERROR: {}'.format(
+        cases_status['pass'],
+        cases_status['fail'],
+        cases_status['unknown'],
+        cases_status['error'],
+    )
+
+
 def main(arguments, suites, golden_store, archive, git_info):
     args = parse_arguments(arguments)
 
@@ -55,9 +68,18 @@ def main(arguments, suites, golden_store, archive, git_info):
         print("\n".join(['{}/{}'.format(s, c) for s, c in cases]))
     elif args.command == 'run':
         cases = resolve_casespecs(suites, args.casespecs)
-        run_cases(suites, golden_store, archive, git_info, cases)
+        cases_status = run_cases(suites, golden_store, archive, git_info, cases)
+        if cases_status['pass'] < len(cases):
+            raise AbortError(_format_cases_status(cases_status))
     elif args.command == 'show':
         result = resolve_resultspec(archive, args.resultspec)
+        show_result(suites, result)
+    elif args.command == 'runshow':
+        cases = resolve_casespecs(suites, args.casespecs)
+        run_cases(suites, golden_store, archive, git_info, cases)
+        if cases_status['pass'] + cases_status['unknown'] < len(cases):
+            raise AbortError(_format_cases_status(cases_status))
+        result = resolve_resultspec(archive, args.casespecs[0])
         show_result(suites, result)
     elif args.command == 'diff':
         golden_result = resolve_resultspec(archive, args.goldenspec)
