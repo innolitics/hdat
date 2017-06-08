@@ -91,6 +91,7 @@ class GoldenStore:
         shallow_copied_result = copy.copy(result)
         try:
             del shallow_copied_result['context']
+            del shallow_copied_result['case_input']
         except KeyError:
             pass
         deeply_copied_result = copy.deepcopy(shallow_copied_result)
