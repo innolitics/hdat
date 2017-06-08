@@ -76,7 +76,7 @@ def main(arguments, suites, golden_store, archive, git_info):
         show_result(suites, result)
     elif args.command == 'runshow':
         cases = resolve_casespecs(suites, args.casespecs)
-        run_cases(suites, golden_store, archive, git_info, cases)
+        cases_status = run_cases(suites, golden_store, archive, git_info, cases)
         if cases_status['pass'] + cases_status['unknown'] < len(cases):
             raise AbortError(_format_cases_status(cases_status))
         result = resolve_resultspec(archive, args.casespecs[0])
