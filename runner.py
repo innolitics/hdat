@@ -53,7 +53,7 @@ def run_case(suite, golden_store, archive, git_info, case_id):
         status, comments = 'unknown', 'No golden result present'
     else:
         passed, comments = suite.verify(golden_result['metrics'], metrics)
-        status = 'pass' if passed else 'error'
+        status = 'pass' if passed else 'fail'
 
     result = build_result(suite, git_info, case_id, case_input, metrics, context, status)
     archive.insert(result)
