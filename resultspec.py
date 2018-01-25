@@ -34,7 +34,6 @@ def resolve_resultspec(archive, resultspec):
                         'or a tilde followed by an integer, but not "{}"'
                 raise AbortError(msg.format(resultspec, resultspec_parts[2][1]))
 
-
         # TODO: make this faster in the event there are many results
         results = archive.select_all(*resultspec_parts[:2])
         if len(results) == 0:
@@ -42,7 +41,6 @@ def resolve_resultspec(archive, resultspec):
             raise AbortError(msg.format(resultspec, archive.root))
         else:
             try:
-                print(i)
                 return results[i]
             except IndexError:
                 msg = 'Unable to locate any results matching "{}", there are only {} results present.'
