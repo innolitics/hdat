@@ -2,8 +2,6 @@
 
 HDATT is a python library and command line tool that simplifies testing algorithms with high dimensional inputs and outputs, e.g. image processing algorithms.
 
-TODO: add a motivation section
-
 # Suites
 
 An HDATT `Suite` is a python class that implements a few methods.  In particular, it implements methods that:
@@ -26,13 +24,15 @@ A suite is responsible for collecting all of the test cases that it contains, an
 
 A suite is responsible for running test cases.  A test case must be run with the inputs provided from the collection stage.
 
-The output of the algorithm we are testing will usually be a large array of some sort, which is difficult to stably compare over time as the algorithm evolves.
+The output of the algorithm we are testing will usually be a large array of some sort, which is difficult to compare over time as the algorithm evolves due to its large size, floating point changes, etc.
 
-In order to avoid having to manually and qualitatively compare these large outputs, instead we reduce them into one or more "metrics" that can be compared automatically.  These metrics are then compared with previous results from the same test case that have been manually verified by a human.
+In other words, unlike "low-dimensional" algorithms where it is possible to write assertions to verify that the output is correct, when working with "high-dimensional" algorithms, the outputs are too large and complex for simple assertions; in fact, for many types of problems, finding a simple verification assertion is equivalent to solving the underlying problem!  Thus, the only way we can really verify the result is through semi-manual verification by a human.
+
+But of course, we don't want to manually verify the test case output every time!  To get around this, we reduce the high dimensionality algorithm output into one or more "metrics" that can be compared automatically most of the time.  The first time we run a new test case, a human manually verifies the output.  We then save these metrics into a "golden result" file.  Subsequent algorithm runs are compared with these golden results to see if the metrics have changed too much (where "too much" is set by the hdat suite).
 
 If the automated comparison fails, it may not mean that the algorithm has actually errored.  It may simply mean that a change in the algorithm has resulted in the metrics sufficiently changing so as to require the full-output to be re-verified by a human.
 
-The metrics alone are insufficient to make a manual verification, thus the run method should also record the full dimensional output (and possibly intermediate output) that can help a human manually verify that the result is in fact correct.
+The metrics alone are insufficient to make a manual verification, thus the run method should also record the full dimensional output (and possibly intermediate output) that can help a human manually verify that the result is in fact correct.  This additional information is called the "context".
 
 Thus, the run method of the suite must return two items
 
@@ -97,7 +97,7 @@ Test results are kept in *stores*.  There are two stores that the command line t
 
 # Casespecs
 
-A casespec is a string that selects test cases.  A casespec may specify a single test case, or it may specify many test cases.
+A casespec is a string that selects one or more test cases.  A casespec may specify a single test case, or it may specify many test cases.
 
 Here are several casespecs along with the test cases they would select:
 
@@ -107,11 +107,14 @@ Here are several casespecs along with the test cases they would select:
 
 # Resultspecs
 
-A resultspec is a string that selects test results.  A result spec may specify a single result, or many results.  Resultspecs are more varied than casespecs, because there are typically many more results that need to be selected among.
+A resultspec is a string that selects one or more test results.  A result spec may specify a single result, or many results.  Every casespec can also act as a resultspec; , because there are typically many more results that need to be selected among.
 
-Here are several casespecs along with the test cases they would select:
+Here are several resultspec along with the test cases they would select:
 
 "" - Selects the most recent result for every test case in every test suite.
 "a" - Selects the most recent results for every test case in the test suite with id "a".
 "a/b" - Selects the most recent result for the test case with id "b" in the test suite with id "a".
 "a/b/c" - Selects the test result with id "c" for the test case with id "b" in the test suite with id "a".
+"a/b/~0" - Selects the most recent result for the test case with id "b" in the test suite with id "a".
+"a/b/~1" - Selects the previous result for the test case with id "b" in the test suite with id "a".
+"a/b/~4" - Selects the 4 test older than the previous result for the test case with id "b" in the test suite with id "a".
