@@ -31,4 +31,3 @@ class TestSelectCases:
     def test_long_specifier(self, mock_suites):
         with pytest.raises(AbortError):
             resolve_casespecs(mock_suites, ['a/1/huh'])
-

@@ -1,12 +1,10 @@
-import os
-
 import numpy as np
 import pytest
 
 
 class TestGoldenStore:
     def test_select_missing(self, tmp_golden_store):
-        assert tmp_golden_store.select_golden('sid', 'cid') == None
+        assert tmp_golden_store.select_golden('sid', 'cid') is None
 
     def test_insert_then_select(self, tmp_golden_store):
         result = {

@@ -28,14 +28,11 @@ class TestMainRun:
         main_with_mocks(['run'])
 
     def test_show_most_recent(self, main_with_mocks, capsys):
-        with pytest.raises(AbortError) as e:
+        with pytest.raises(AbortError):
             main_with_mocks(['run', 'a/1'])
 
-        with pytest.raises(AbortError) as e:
+        with pytest.raises(AbortError):
             main_with_mocks(['show'])
 
         _, err = capsys.readouterr()
         assert 'showing "a/1' in str(err)
-
-    # def test_diff(self):
-        # pass

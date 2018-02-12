@@ -30,7 +30,7 @@ def resolve_resultspec(archive, resultspec):
                 i = -1 - int(resultspec_parts[2][1:])
             except ValueError:
                 msg = 'Invalid resultspec "{}"; the third part must be a valid result_id' + \
-                        'or a tilde followed by an integer, but not "{}"'
+                    'or a tilde followed by an integer, but not "{}"'
                 raise AbortError(msg.format(resultspec, resultspec_parts[2][1]))
 
         # TODO: make this faster in the event there are many results
