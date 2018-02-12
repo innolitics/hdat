@@ -1,3 +1,5 @@
+<img src="https://travis-ci.org/innolitics/hdat.svg?branch=master">
+
 # High Dimensional Algorithm Testing Tool (HDATT)
 
 HDATT is a python library and command line tool that simplifies testing algorithms with high dimensional inputs and outputs, e.g. image processing algorithms.
