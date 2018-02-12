@@ -5,7 +5,7 @@ python:
     - "3.4"
     - "3.5"
     - "3.6"
-install: pip install tox-travis
+install: pip install tox-travis numpy tabulate
 script: tox
 notifications:
   email: false

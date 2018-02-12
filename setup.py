@@ -40,13 +40,11 @@ setup(
 
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 
-    install_requires=[
-        'gitpython'
-    ],
+    install_requires=['gitpython', 'tabulate'],
 
     extras_require={
         'dev': ['check-manifest', 'sphinx', 'sphinx-autobuild', 'mock'],
-        'test': ['coverage'],
+        'test': ['coverage', 'numpy'],
     },
 
     package_data={},
