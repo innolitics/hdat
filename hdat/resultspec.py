@@ -13,7 +13,6 @@ def resolve_resultspec(archive, resultspec):
             msg = 'Unable to read resultspec "{}"'
             raise AbortError(msg.format(resultspec))
 
-        
     if resultspec == '':
         resultspec_parts = []
     else:

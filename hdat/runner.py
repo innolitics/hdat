@@ -1,11 +1,6 @@
-import sys
-import os
-import argparse
 import datetime
-import pydoc
 import traceback
 
-from .util import print_error
 from .casespec import print_casespec
 
 
@@ -30,7 +25,7 @@ def run_cases(suites, golden_store, archive, git_info, cases):
         print('STARTING CASE "{}"'.format(casespec))
         try:
             status, comments = run_case(suite, golden_store, archive, git_info, case_id)
-        except:
+        except Exception:
             comments = 'Error "{}"'.format(casespec)
             status = 'error'
             traceback.print_exc()

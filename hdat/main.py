@@ -1,6 +1,6 @@
 import argparse
 import traceback
-from collections import ChainMap, OrderedDict
+from collections import OrderedDict
 
 import tabulate
 
@@ -84,7 +84,7 @@ def main(arguments, suites, golden_store, archive, git_info):
     elif args.command == 'diff':
         golden_result = resolve_resultspec(archive, args.goldenspec)
         result = resolve_resultspec(archive, args.resultspec)
-        suite.diff_results(suites, golden_result, result)
+        diff_results(suites, golden_result, result)
     elif args.command == 'verify':
         result = resolve_resultspec(archive, args.resultspec)
         golden_store.insert(result)
@@ -99,7 +99,7 @@ def main(arguments, suites, golden_store, archive, git_info):
             row['FPF'] = result['metrics']['FPF']
             table.append(row)
 
-        print(tabulate.tabulate(table, headers="keys",  tablefmt="psql", floatfmt=".5f"))
+        print(tabulate.tabulate(table, headers="keys", tablefmt="psql", floatfmt=".5f"))
         # TODO: Find better way to print results table. Currently it only works
         # with feature detection hdat.  e.g. allow the user to specify two
         # metrics (e.g. using jsonrefs) for the x and y axis of the table
@@ -109,7 +109,7 @@ def show_result(suites, result):
     suite = select_suite(suites, result['suite_id'])
     try:
         suite.show(result)
-    except:
+    except Exception:
         traceback.print_exc()
         msg = 'Error when attempting to show "{}"'
         raise AbortError(msg.format(print_resultspec(result)))
@@ -126,8 +126,7 @@ def diff_results(suites, golden_result, result):
     suite = select_suite(suites, suite_id)
     try:
         suite.diff(golden_result, result)
-    except:
+    except Exception:
         traceback.print_exc()
         msg = 'Error when attempting to show "{}"'
         raise AbortError(msg.format(print_resultspec(result)))
-

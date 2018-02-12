@@ -1,4 +1,3 @@
-import datetime
 import pydoc
 
 from .util import print_error, find_here_or_in_parents, AbortError
@@ -37,7 +36,7 @@ class Suite:
         the full result of running the algorithm.
         '''
         raise NotImplementedError()
-    
+
     def show(self, result):
         raise NotImplementedError()
 

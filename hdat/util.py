@@ -1,7 +1,5 @@
 import os
 import sys
-import operator
-import types
 
 
 class AbortError(Exception):

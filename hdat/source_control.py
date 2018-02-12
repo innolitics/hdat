@@ -1,5 +1,7 @@
 from git import Repo, InvalidGitRepositoryError
 
+from .util import AbortError
+
 
 def git_info_from_directory(directory):
     try:

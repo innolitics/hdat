@@ -9,16 +9,16 @@ class TestSelectCases:
         assert set(resolve_casespecs(mock_suites, [''])) == set([('a', '1'), ('a', '2'), ('b', '3')])
 
     def test_select_suite_a(self, mock_suites):
-        assert resolve_casespecs(mock_suites, ['a']) == [('a', '1'), ('a', '2')] 
+        assert resolve_casespecs(mock_suites, ['a']) == [('a', '1'), ('a', '2')]
 
     def test_collect_order_preserved(self, mock_suites):
-        assert resolve_casespecs(mock_suites, ['b', 'a']) == [('b', '3'), ('a', '1'), ('a', '2')] 
+        assert resolve_casespecs(mock_suites, ['b', 'a']) == [('b', '3'), ('a', '1'), ('a', '2')]
 
     def test_select_case(self, mock_suites):
-        assert resolve_casespecs(mock_suites, ['a/1']) == [('a', '1')] 
+        assert resolve_casespecs(mock_suites, ['a/1']) == [('a', '1')]
 
     def test_duplicates_removed(self, mock_suites):
-        assert resolve_casespecs(mock_suites, ['a/2', 'a']) == [('a', '2'), ('a', '1')] 
+        assert resolve_casespecs(mock_suites, ['a/2', 'a']) == [('a', '2'), ('a', '1')]
 
     def test_unknown_suite(self, mock_suites):
         with pytest.raises(AbortError):
