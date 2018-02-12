@@ -1,7 +1,7 @@
 import pytest
 
-from ..resultspec import resolve_resultspec
-from ..util import AbortError
+from hdat.resultspec import resolve_resultspec
+from hdat.util import AbortError
 
 
 @pytest.fixture

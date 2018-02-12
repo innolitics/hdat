@@ -3,9 +3,9 @@ from collections import OrderedDict
 
 import pytest
 
-from .store import GoldenStore, Archive
-from .suite import Suite
-from .resultspec import print_resultspec
+from hdat.store import GoldenStore, Archive
+from hdat.suite import Suite
+from hdat.resultspec import print_resultspec
 
 
 @pytest.fixture

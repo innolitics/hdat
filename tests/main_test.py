@@ -1,7 +1,7 @@
 import pytest
 
-from ..main import main
-from ..util import AbortError
+from hdat.main import main
+from hdat.util import AbortError
 
 
 @pytest.fixture
