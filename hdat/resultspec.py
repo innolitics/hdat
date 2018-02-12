@@ -8,7 +8,7 @@ def resolve_resultspec(archive, resultspec):
     if os.path.isfile(resultspec):
         try:
             return archive.read_result(resultspec)
-        except Exception as e:
+        except Exception:
             traceback.print_exc()
             msg = 'Unable to read resultspec "{}"'
             raise AbortError(msg.format(resultspec))

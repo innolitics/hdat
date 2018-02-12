@@ -1,5 +1,3 @@
-import os
-
 import pytest
 
 from ..resultspec import resolve_resultspec
