@@ -94,3 +94,24 @@ Test results are kept in *stores*.  There are two stores that the command line t
 - A conceptually simple API
 - Be picky and abort easily at the start of a run, but after the run begins,
   try to catch any errors and continue.
+
+# Casespecs
+
+A casespec is a string that selects test cases.  A casespec may specify a single test case, or it may specify many test cases.
+
+Here are several casespecs along with the test cases they would select:
+
+"" - Selects all test cases in all suites.
+"a" - Selects all cases in the test suite with id "a".
+"a/b" - Selects test case with id "b" in the suite with id "b".
+
+# Resultspecs
+
+A resultspec is a string that selects test results.  A result spec may specify a single result, or many results.  Resultspecs are more varied than casespecs, because there are typically many more results that need to be selected among.
+
+Here are several casespecs along with the test cases they would select:
+
+"" - Selects the most recent result for every test case in every test suite.
+"a" - Selects the most recent results for every test case in the test suite with id "a".
+"a/b" - Selects the most recent result for the test case with id "b" in the test suite with id "a".
+"a/b/c" - Selects the test result with id "c" for the test case with id "b" in the test suite with id "a".
