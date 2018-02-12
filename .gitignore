@@ -1,0 +1,9 @@
+build
+__pycache__
+*.py[co]
+*.so
+MANIFEST
+*.egg-info
+.cache
+.python-version
+.pytest_cache
