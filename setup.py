@@ -40,7 +40,9 @@ setup(
 
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 
-    install_requires=[],
+    install_requires=[
+        'gitpython'
+    ],
 
     extras_require={
         'dev': ['check-manifest', 'sphinx', 'sphinx-autobuild', 'mock'],
