@@ -103,9 +103,9 @@ A casespec is a string that selects one or more test cases.  A casespec may spec
 
 Here are several casespecs along with the test cases they would select:
 
-"" - Selects all test cases in all suites.
-"a" - Selects all cases in the test suite with id "a".
-"a/b" - Selects test case with id "b" in the suite with id "b".
+- `` Selects all test cases in all suites.
+- `a` Selects all cases in the test suite with id "a".
+- `a/b` Selects test case with id "b" in the suite with id "b".
 
 # Resultspecs
 
@@ -113,10 +113,10 @@ A resultspec is a string that selects one or more test results.  A result spec m
 
 Here are several resultspec along with the test cases they would select:
 
-"" - Selects the most recent result for every test case in every test suite.
-"a" - Selects the most recent results for every test case in the test suite with id "a".
-"a/b" - Selects the most recent result for the test case with id "b" in the test suite with id "a".
-"a/b/c" - Selects the test result with id "c" for the test case with id "b" in the test suite with id "a".
-"a/b/~0" - Selects the most recent result for the test case with id "b" in the test suite with id "a".
-"a/b/~1" - Selects the previous result for the test case with id "b" in the test suite with id "a".
-"a/b/~4" - Selects the 4 test older than the previous result for the test case with id "b" in the test suite with id "a".
+- `` Selects the most recent result for every test case in every test suite.
+- `a` Selects the most recent results for every test case in the test suite with id "a".
+- `a/b` Selects the most recent result for the test case with id "b" in the test suite with id "a".
+- `a/b/c` Selects the test result with id "c" for the test case with id "b" in the test suite with id "a".
+- `a/b/~0` Selects the most recent result for the test case with id "b" in the test suite with id "a".
+- `a/b/~1` Selects the previous result for the test case with id "b" in the test suite with id "a".
+- `a/b/~4` Selects the 4 test older than the previous result for the test case with id "b" in the test suite with id "a".
