@@ -4,10 +4,10 @@ import traceback
 from .util import AbortError
 
 
-def resolve_resultspec(archive, resultspec):
+def resolve_resultspecs(archive, resultspec):
     if os.path.isfile(resultspec):
         try:
-            return archive.read_result(resultspec)
+            return [archive.read_result(resultspec)]
         except Exception:
             traceback.print_exc()
             msg = 'Unable to read resultspec "{}"'
@@ -18,12 +18,14 @@ def resolve_resultspec(archive, resultspec):
     else:
         resultspec_parts = resultspec.split('/')
 
-    pick_latest = len(resultspec_parts) == 2
+    pick_recents_all_suites = len(resultspec_parts) == 0
+    pick_recents_one_suite = len(resultspec_parts) == 1
+    pick_recent = len(resultspec_parts) == 2
     pick_by_index = len(resultspec_parts) == 3 and resultspec_parts[2].startswith('~')
     pick_by_result_id = len(resultspec_parts) == 3 and not pick_by_index
 
-    if pick_latest or pick_by_index:
-        if pick_latest:
+    if pick_recent or pick_by_index:
+        if pick_recent:
             i = -1
         else:
             try:
@@ -32,27 +34,23 @@ def resolve_resultspec(archive, resultspec):
                 msg = 'Invalid resultspec "{}"; the third part must be a valid result_id' + \
                     'or a tilde followed by an integer, but not "{}"'
                 raise AbortError(msg.format(resultspec, resultspec_parts[2][1]))
-
-        # TODO: make this faster in the event there are many results
-        results = archive.select_all(*resultspec_parts[:2])
-        if len(results) == 0:
-            msg = 'Unable to locate any results matching "{}" in the archive at "{}"'
-            raise AbortError(msg.format(resultspec, archive.root))
-        else:
-            try:
-                return results[i]
-            except IndexError:
-                msg = 'Unable to locate any results matching "{}", there are only {} results present.'
-                raise AbortError(msg.format(resultspec, i))
-
+        try:
+            result = archive.select_recent(i, *resultspec_parts[:2])
+            return [result]
+        except IndexError:
+            msg = 'Unable to locate any results matching "{}", there are more than {} results present.'
+            raise AbortError(msg.format(resultspec, i))
     elif pick_by_result_id:
         result = archive.select(*resultspec_parts)
         if result is None:
             msg = 'Unable to locate result "{}" in the archive at "{}"'
             raise AbortError(msg.format(resultspec, archive.root))
         else:
-            return result
-
+            return [result]
+    elif pick_recents_all_suites:
+        return archive.select_recents_all()
+    elif pick_recents_one_suite:
+        return archive.select_recents_suite(resultspec_parts[0])
     else:
         msg = 'Invalid result spec "{}". ' + \
               'Resultspecs must point to a result file, ' + \

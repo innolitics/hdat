@@ -1,7 +1,7 @@
 import argparse
 import traceback
 
-from .resultspec import resolve_resultspec, print_resultspec
+from .resultspec import resolve_resultspecs, print_resultspec
 from .casespec import resolve_casespecs, select_suite
 from .runner import run_cases
 from .util import AbortError
@@ -64,22 +64,26 @@ def main(arguments, suites, golden_store, archive, git_info):
         if cases_status['pass'] < len(cases):
             raise AbortError(_format_cases_status(cases_status))
     elif args.command == 'show':
-        result = resolve_resultspec(archive, args.resultspec)
-        show_result(suites, result)
+        results = resolve_resultspecs(archive, args.resultspec)
+        for result in results:
+            show_result(suites, result)
     elif args.command == 'runshow':
         cases = resolve_casespecs(suites, args.casespecs)
         cases_status = run_cases(suites, golden_store, archive, git_info, cases)
         if cases_status['error'] > 0:
             raise AbortError(_format_cases_status(cases_status))
-        result = resolve_resultspec(archive, args.casespecs[0])
-        show_result(suites, result)
+        results = resolve_resultspecs(archive, args.casespecs[0])
+        for result in results:
+            show_result(suites, result)
     elif args.command == 'diff':
-        golden_result = resolve_resultspec(archive, args.goldenspec)
-        result = resolve_resultspec(archive, args.resultspec)
-        diff_results(suites, golden_result, result)
+        golden_results = resolve_resultspecs(archive, args.goldenspec)
+        results = resolve_resultspecs(archive, args.resultspec)
+        for golden_result, result in zip(golden_results, results):
+            diff_results(suites, golden_result, result)
     elif args.command == 'verify':
-        result = resolve_resultspec(archive, args.resultspec)
-        golden_store.insert(result)
+        results = resolve_resultspecs(archive, args.resultspec)
+        for result in results:
+            golden_store.insert(result)
 
 
 def show_result(suites, result):

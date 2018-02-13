@@ -3,6 +3,8 @@ import json
 import copy
 import pickle
 
+from .util import AbortError
+
 
 class Archive:
     def __init__(self, directory):
@@ -17,13 +19,17 @@ class Archive:
         else:
             return self.read_result(result_filename)
 
-    def select_all(self, *args):
+    def select_recent(self, i, *args):
         top_directory = os.path.join(self.root, *args)
+        if not os.path.isdir(top_directory):
+            msg = "Selected case directory {} does not exist or is not a directory"
+            raise AbortError(msg.format(top_directory))
 
         result_filenames = []
-        for dirpath, _, filenames in os.walk(top_directory):
-            result_filenames.extend([os.path.join(dirpath, p) for p in filenames])
-
+        for entry in os.scandir(top_directory):
+            if not entry.name.startswith('.') and entry.is_file():
+                result_filenames.append(os.path.join(top_directory, entry.name))
+        print(result_filenames)
         results = []
         for filename in result_filenames:
             result = self.read_result(filename)
@@ -31,7 +37,26 @@ class Archive:
 
         results_sorted = sorted(results, key=lambda r: r['ran_on'])
 
-        return results_sorted
+        return results_sorted[i]
+
+    def select_recents_suite(self, *args):
+        top_directory = os.path.join(self.root, *args)
+        if not os.path.isdir(top_directory):
+            msg = "Selected suite directory {} does not exist or is not a directory"
+            raise AbortError(msg.format(top_directory))
+
+        results = []
+        for entry in os.scandir(top_directory):
+            if not entry.name.startswith('.') and entry.is_dir():
+                results.append(self.select_recent(-1, *args, entry.name))
+        return results
+
+    def select_recents_all(self):
+        results = []
+        for entry in os.scandir(self.root):
+            if not entry.name.startswith('.') and entry.is_dir():
+                results.extend(self.select_recents_suite(entry.name))
+        return results
 
     def insert(self, result):
         suite_id = result['suite_id']
