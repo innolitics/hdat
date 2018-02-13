@@ -109,9 +109,9 @@ def show_result(suites, result):
     suite = select_suite(suites, result['suite_id'])
     try:
         suite.show(result)
-    except Exception:
+    except Exception as e:
         traceback.print_exc()
-        msg = 'Error when attempting to show "{}"'
+        msg = 'Error when attempting to show "{}": ' + str(e)
         raise AbortError(msg.format(print_resultspec(result)))
 
 
@@ -126,7 +126,7 @@ def diff_results(suites, golden_result, result):
     suite = select_suite(suites, suite_id)
     try:
         suite.diff(golden_result, result)
-    except Exception:
+    except Exception as e:
         traceback.print_exc()
-        msg = 'Error when attempting to show "{}"'
+        msg = 'Error when attempting to show "{}": ' + str(e)
         raise AbortError(msg.format(print_resultspec(result)))
