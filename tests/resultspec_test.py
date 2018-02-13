@@ -69,10 +69,12 @@ class TestResolveResultSpec:
         resultspec = 'a/1'
         assert resolve_resultspec(archive, resultspec) == mock_results[1]
 
+    @pytest.mark.xfail  # TODO not implemented
     def test_most_recent_in_suite(self, archive, mock_results):
         resultspec = 'a'
         assert resolve_resultspec(archive, resultspec) == mock_results[2]
 
+    @pytest.mark.xfail  # TODO not implemented
     def test_most_recent_overall(self, archive, mock_results):
         resultspec = ''
         assert resolve_resultspec(archive, resultspec) == mock_results[3]
