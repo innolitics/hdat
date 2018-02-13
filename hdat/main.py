@@ -1,8 +1,5 @@
 import argparse
 import traceback
-from collections import OrderedDict
-
-import tabulate
 
 from .resultspec import resolve_resultspec, print_resultspec
 from .casespec import resolve_casespecs, select_suite
@@ -39,11 +36,6 @@ def parse_arguments(arguments):
     verify_parser = subparsers.add_parser('verify', help=verify_help)
     verify_result_help = 'results to be stripped and moved into the golden store'
     verify_parser.add_argument('resultspec', nargs='?', default='', metavar='<result>', help=verify_result_help)
-
-    report_help = 'Print a report from the most recent results for a given suite.'
-    report_parser = subparsers.add_parser('report', help=report_help)
-    report_help = 'suite to generate and print out a report for.'
-    report_parser.add_argument('suitespec', default='', metavar='<suite>', help=report_help)
 
     return parser.parse_args(arguments)
 
@@ -88,21 +80,6 @@ def main(arguments, suites, golden_store, archive, git_info):
     elif args.command == 'verify':
         result = resolve_resultspec(archive, args.resultspec)
         golden_store.insert(result)
-    elif args.command == 'report':
-        suite = select_suite(suites, args.suitespec)
-        result_specs = ['{}/{}'.format(args.suitespec, case_id) for case_id in suite.collect()]
-        results = [resolve_resultspec(archive, result_spec) for result_spec in result_specs]
-        table = []
-        for result in results:
-            row = OrderedDict({'case id': result['case_id']})
-            row['TPF'] = result['metrics']['TPF']
-            row['FPF'] = result['metrics']['FPF']
-            table.append(row)
-
-        print(tabulate.tabulate(table, headers="keys", tablefmt="psql", floatfmt=".5f"))
-        # TODO: Find better way to print results table. Currently it only works
-        # with feature detection hdat.  e.g. allow the user to specify two
-        # metrics (e.g. using jsonrefs) for the x and y axis of the table
 
 
 def show_result(suites, result):
