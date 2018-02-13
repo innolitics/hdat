@@ -111,8 +111,8 @@ def show_result(suites, result):
         suite.show(result)
     except Exception as e:
         traceback.print_exc()
-        msg = 'Error when attempting to show "{}": ' + str(e)
-        raise AbortError(msg.format(print_resultspec(result)))
+        msg = 'Error when attempting to show "{}": {}'
+        raise AbortError(msg.format(print_resultspec(result), e))
 
 
 def diff_results(suites, golden_result, result):
@@ -128,5 +128,5 @@ def diff_results(suites, golden_result, result):
         suite.diff(golden_result, result)
     except Exception as e:
         traceback.print_exc()
-        msg = 'Error when attempting to show "{}": ' + str(e)
-        raise AbortError(msg.format(print_resultspec(result)))
+        msg = 'Error when attempting to show "{}": {}'
+        raise AbortError(msg.format(print_resultspec(result), e))
