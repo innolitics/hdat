@@ -47,5 +47,9 @@ setup(
 
     package_data={},
     data_files=[],
-    entry_points={},
+    entry_points={
+        'console_scripts': [
+            'hdat = hdat.main:main'
+        ]
+    },
 )
