@@ -59,7 +59,7 @@ class Archive:
         results = []
         for entry in os.scandir(top_directory):
             if not entry.name.startswith('.') and entry.is_dir():
-                results.append(self.select_recent(-1, *args, entry.name))
+                results.append(self.select_recent(-1, *(args+(entry.name,))))
         return results
 
     def select_recents_all(self):
