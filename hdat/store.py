@@ -30,17 +30,17 @@ class Archive:
         ResultDesc = namedtuple('ResultDesc', ('id', 'ran_on'))
         id_to_full_result = dict()
 
-        for entry in os.scandir(top_directory):
-            if not entry.name.startswith('.') and entry.is_file():
+        for entry in os.listdir(top_directory):
+            if not entry.startswith('.') and os.path.isfile(os.path.join(top_directory, entry)):
                 # check for ran_on timestamp as part of <timestamp>_<commit_id> result ID format
                 try:
-                    ran_on = float(entry.name.split('_')[0])
-                    results.append(ResultDesc(entry.name, ran_on))
+                    ran_on = float(entry.split('_')[0])
+                    results.append(ResultDesc(entry, ran_on))
                 except ValueError:
-                    result = self.read_result(os.path.join(top_directory, entry.name))
+                    result = self.read_result(os.path.join(top_directory, entry))
                     ran_on = result['ran_on']
-                    id_to_full_result[entry.name] = result
-                    results.append(ResultDesc(entry.name, ran_on))
+                    id_to_full_result[entry] = result
+                    results.append(ResultDesc(entry, ran_on))
 
         results_sorted = sorted(results, key=lambda r: r.ran_on)
         recent_id = results_sorted[i].id
@@ -57,16 +57,16 @@ class Archive:
             raise AbortError(msg.format(top_directory))
 
         results = []
-        for entry in os.scandir(top_directory):
-            if not entry.name.startswith('.') and entry.is_dir():
-                results.append(self.select_recent(-1, *(args+(entry.name,))))
+        for entry in os.listdir(top_directory):
+            if not entry.startswith('.') and os.path.isdir(os.path.join(top_directory, entry)):
+                results.append(self.select_recent(-1, *(args+(entry,))))
         return results
 
     def select_recents_all(self):
         results = []
-        for entry in os.scandir(self.root):
-            if not entry.name.startswith('.') and entry.is_dir():
-                results.extend(self.select_recents_suite(entry.name))
+        for entry in os.listdir(self.root):
+            if not entry.startswith('.') and os.path.isdir(os.path.join(self.root, entry)):
+                results.extend(self.select_recents_suite(entry))
         return results
 
     def insert(self, result):
