@@ -47,9 +47,6 @@ class Suite:
     def id(self):
         return type(self).__name__
 
-    def build_result_id(self, result):
-        return '{}_{}'.format(result['ran_on'], result['commit'])
-
 
 def collect_suites(directory):
     suite_classes = _collect_suite_classes(directory)

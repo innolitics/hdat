@@ -2,6 +2,7 @@ import os
 import json
 import copy
 import pickle
+from collections import namedtuple
 
 from .util import AbortError
 
@@ -25,19 +26,29 @@ class Archive:
             msg = "Selected case directory {} does not exist or is not a directory"
             raise AbortError(msg.format(top_directory))
 
-        result_filenames = []
+        results = []
+        ResultDesc = namedtuple('ResultDesc', ('id', 'ran_on'))
+        id_to_full_result = dict()
+
         for entry in os.scandir(top_directory):
             if not entry.name.startswith('.') and entry.is_file():
-                result_filenames.append(os.path.join(top_directory, entry.name))
-        print(result_filenames)
-        results = []
-        for filename in result_filenames:
-            result = self.read_result(filename)
-            results.append(result)
+                # check for ran_on timestamp as part of <timestamp>_<commit_id> result ID format
+                try:
+                    ran_on = float(entry.name.split('_')[0])
+                    results.append(ResultDesc(entry.name, ran_on))
+                except ValueError:
+                    result = self.read_result(os.path.join(top_directory, entry.name))
+                    ran_on = result['ran_on']
+                    id_to_full_result[entry.name] = result
+                    results.append(ResultDesc(entry.name, ran_on))
 
-        results_sorted = sorted(results, key=lambda r: r['ran_on'])
+        results_sorted = sorted(results, key=lambda r: r.ran_on)
+        recent_id = results_sorted[i].id
 
-        return results_sorted[i]
+        if recent_id in id_to_full_result:
+            return id_to_full_result[recent_id]
+        else:
+            return self.read_result(os.path.join(top_directory, recent_id))
 
     def select_recents_suite(self, *args):
         top_directory = os.path.join(self.root, *args)

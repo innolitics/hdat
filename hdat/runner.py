@@ -61,6 +61,10 @@ def validate_result(run_result):
         raise ValueError(msg.format(repr(run_result)))
 
 
+def build_result_id(result):
+        return '{}_{}'.format(result['ran_on'], result['commit'])
+
+
 def build_result(suite, git_info, case_id, case_input, metrics, context, status):
     run_datetime = datetime.datetime.utcnow()
     result = {
@@ -75,5 +79,5 @@ def build_result(suite, git_info, case_id, case_input, metrics, context, status)
         'status': status,
     }
 
-    result['result_id'] = suite.build_result_id(result)
+    result['result_id'] = build_result_id(result)
     return result

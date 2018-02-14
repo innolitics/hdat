@@ -16,19 +16,19 @@ def mock_results():
         {
             'suite_id': 'a',
             'case_id': '1',
-            'result_id': 'r2',
+            'result_id': '101_r2',
             'ran_on': 101,
         },
         {
             'suite_id': 'a',
             'case_id': '2',
-            'result_id': 'r3',
+            'result_id': '103_r3',
             'ran_on': 103,
         },
         {
             'suite_id': 'b',
             'case_id': '1',
-            'result_id': 'r4',
+            'result_id': '103_r4',
             'ran_on': 104,
         },
     ]
@@ -57,7 +57,7 @@ class TestResolveResultSpec:
             resolve_resultspecs(archive, resultspec)
 
     def test_fully_qualified(self, archive, mock_results):
-        resultspec = 'a/1/r2'
+        resultspec = 'a/1/101_r2'
         assert resolve_resultspecs(archive, resultspec)[0] == mock_results[1]
 
     def test_relative_index_1(self, archive, mock_results):
