@@ -57,7 +57,7 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
 
     if args.command == 'run' and args.collect_only:
         cases = resolve_casespecs(suites, args.casespecs)
-        print("\n".join(['{}/{}'.format(s, c) for s, c in cases]))
+        print("\n".join(['{}/{}'.format(suite_id, case_id) for suite_id, case_id in cases]))
     elif args.command == 'run':
         cases = resolve_casespecs(suites, args.casespecs)
         cases_status = run_cases(suites, golden_store, archive, git_info, cases)
@@ -72,7 +72,7 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         cases_status = run_cases(suites, golden_store, archive, git_info, cases)
         if cases_status['error'] > 0:
             raise AbortError(_format_cases_status(cases_status))
-        results = resolve_resultspecs(archive, args.casespecs[0])
+        results = resolve_resultspecs(archive, args.casespecs)
         for result in results:
             show_result(suites, result)
     elif args.command == 'diff':
