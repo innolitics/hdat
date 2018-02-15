@@ -44,7 +44,7 @@ def archive(tmp_archive, mock_results):
 class TestResolveResultSpec:
     def test_existing_file(self, archive, mock_results):
         resultspec = archive._result_filename('a', '1', 'r1')
-        assert resolve_resultspecs(archive, resultspec) == [mock_results[0]]
+        assert list(resolve_resultspecs(archive, resultspec)) == [mock_results[0]]
 
     @pytest.mark.skip
     def test_existing_file_invalid(self, archive):
@@ -58,15 +58,15 @@ class TestResolveResultSpec:
 
     def test_fully_qualified(self, archive, mock_results):
         resultspec = 'a/1/101_r2'
-        assert resolve_resultspecs(archive, resultspec) == [mock_results[1]]
+        assert list(resolve_resultspecs(archive, resultspec)) == [mock_results[1]]
 
     def test_relative_index_1(self, archive, mock_results):
         resultspec = 'a/1/~0'
-        assert resolve_resultspecs(archive, resultspec) == [mock_results[1]]
+        assert list(resolve_resultspecs(archive, resultspec)) == [mock_results[1]]
 
     def test_relative_index_2(self, archive, mock_results):
         resultspec = 'a/1/~1'
-        assert resolve_resultspecs(archive, resultspec) == [mock_results[0]]
+        assert list(resolve_resultspecs(archive, resultspec)) == [mock_results[0]]
 
     def test_relative_index_3(self, archive, mock_results):
         resultspec = 'a/1/~2'
@@ -80,15 +80,15 @@ class TestResolveResultSpec:
 
     def test_most_recent_in_case(self, archive, mock_results):
         resultspec = 'a/1'
-        assert resolve_resultspecs(archive, resultspec) == [mock_results[1]]
+        assert list(resolve_resultspecs(archive, resultspec)) == [mock_results[1]]
 
     def test_most_recent_in_suite(self, archive, mock_results):
         resultspec = 'a'
-        assert resolve_resultspecs(archive, resultspec) == [mock_results[1], mock_results[2]]
+        assert list(resolve_resultspecs(archive, resultspec)) == [mock_results[1], mock_results[2]]
 
     def test_most_recent_all(self, archive, mock_results):
         resultspec = ''
-        assert resolve_resultspecs(archive, resultspec) == [mock_results[1], mock_results[2], mock_results[3]]
+        assert list(resolve_resultspecs(archive, resultspec)) == [mock_results[1], mock_results[2], mock_results[3]]
 
     def test_most_recent_missing(self, archive):
         resultspec = 'a/huh'

@@ -56,18 +56,14 @@ class Archive:
             msg = "Selected suite directory {} does not exist or is not a directory"
             raise AbortError(msg.format(top_directory))
 
-        results = []
         for entry in os.listdir(top_directory):
             if not entry.startswith('.') and os.path.isdir(os.path.join(top_directory, entry)):
-                results.append(self.select_recent(-1, *(args+(entry,))))
-        return results
+                yield self.select_recent(-1, *(args+(entry,)))
 
     def select_recents_all(self):
-        results = []
         for entry in os.listdir(self.root):
             if not entry.startswith('.') and os.path.isdir(os.path.join(self.root, entry)):
-                results.extend(self.select_recents_suite(entry))
-        return results
+                yield from self.select_recents_suite(entry)
 
     def insert(self, result):
         suite_id = result['suite_id']
