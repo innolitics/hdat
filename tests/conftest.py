@@ -23,7 +23,7 @@ def tmp_archive():
 
 
 class BaseSuite(Suite):
-    def verify(self, old, new):
+    def check(self, old, new):
         return old == new, 'Looks good!'
 
     def run(self, case_input):
