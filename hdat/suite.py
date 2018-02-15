@@ -7,7 +7,7 @@ class Suite:
     '''
     Base class for a suite of algorithm test cases.
 
-    Is responsible for collecting, running, verifying, and visualizing the
+    Is responsible for collecting, running, checking, and visualizing the
     results of running the algorithm against its test cases.
     '''
     def cases(self):
@@ -18,9 +18,9 @@ class Suite:
         '''
         raise NotImplementedError()
 
-    def verify(self, golden_metrics, metrics):
+    def check(self, golden_metrics, metrics):
         '''
-        Given two result comparable outputs, verify if the second result passes based on
+        Given two result comparable outputs, check if the second result passes based on
         the first result.  Should return a tuple with a boolean and a string
         with any comments.
         '''
@@ -46,9 +46,6 @@ class Suite:
     @property
     def id(self):
         return type(self).__name__
-
-    def build_result_id(self, result):
-        return '{}_{}'.format(result['ran_on'], result['commit'])
 
 
 def collect_suites(directory):

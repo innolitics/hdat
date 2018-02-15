@@ -2,6 +2,9 @@ import os
 import json
 import copy
 import pickle
+from collections import namedtuple
+
+from .util import AbortError
 
 
 class Archive:
@@ -17,21 +20,50 @@ class Archive:
         else:
             return self.read_result(result_filename)
 
-    def select_all(self, *args):
+    def select_recent(self, i, *args):
         top_directory = os.path.join(self.root, *args)
-
-        result_filenames = []
-        for dirpath, _, filenames in os.walk(top_directory):
-            result_filenames.extend([os.path.join(dirpath, p) for p in filenames])
+        if not os.path.isdir(top_directory):
+            msg = "Selected case directory {} does not exist or is not a directory"
+            raise AbortError(msg.format(top_directory))
 
         results = []
-        for filename in result_filenames:
-            result = self.read_result(filename)
-            results.append(result)
+        ResultDesc = namedtuple('ResultDesc', ('id', 'ran_on'))
+        id_to_full_result = dict()
 
-        results_sorted = sorted(results, key=lambda r: r['ran_on'])
+        for entry in os.listdir(top_directory):
+            if not entry.startswith('.') and os.path.isfile(os.path.join(top_directory, entry)):
+                # check for ran_on timestamp as part of <timestamp>_<commit_id> result ID format
+                try:
+                    ran_on = float(entry.split('_')[0])
+                    results.append(ResultDesc(entry, ran_on))
+                except ValueError:
+                    result = self.read_result(os.path.join(top_directory, entry))
+                    ran_on = result['ran_on']
+                    id_to_full_result[entry] = result
+                    results.append(ResultDesc(entry, ran_on))
 
-        return results_sorted
+        results_sorted = sorted(results, key=lambda r: r.ran_on)
+        recent_id = results_sorted[i].id
+
+        if recent_id in id_to_full_result:
+            return id_to_full_result[recent_id]
+        else:
+            return self.read_result(os.path.join(top_directory, recent_id))
+
+    def select_recents_suite(self, *args):
+        top_directory = os.path.join(self.root, *args)
+        if not os.path.isdir(top_directory):
+            msg = "Selected suite directory {} does not exist or is not a directory"
+            raise AbortError(msg.format(top_directory))
+
+        for entry in os.listdir(top_directory):
+            if not entry.startswith('.') and os.path.isdir(os.path.join(top_directory, entry)):
+                yield self.select_recent(-1, *(args+(entry,)))
+
+    def select_recents_all(self):
+        for entry in os.listdir(self.root):
+            if not entry.startswith('.') and os.path.isdir(os.path.join(self.root, entry)):
+                yield from self.select_recents_suite(entry)
 
     def insert(self, result):
         suite_id = result['suite_id']

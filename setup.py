@@ -38,7 +38,7 @@ setup(
 
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 
-    install_requires=['gitpython', 'tabulate'],
+    install_requires=['gitpython'],
 
     extras_require={
         'dev': ['check-manifest', 'sphinx', 'sphinx-autobuild', 'mock'],
@@ -47,5 +47,9 @@ setup(
 
     package_data={},
     data_files=[],
-    entry_points={},
+    entry_points={
+        'console_scripts': [
+            'hdat = hdat.main:main'
+        ]
+    },
 )

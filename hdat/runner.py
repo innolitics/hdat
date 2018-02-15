@@ -6,7 +6,7 @@ from .casespec import print_casespec
 
 def run_cases(suites, golden_store, archive, git_info, cases):
     '''
-    Run a list of cases, store results in the archive, and verify against
+    Run a list of cases, store results in the archive, and check against
     results in the golden_store.
 
     Cases are specified by a list of tuples of the form `(suite_id, case_id)`.
@@ -47,7 +47,7 @@ def run_case(suite, golden_store, archive, git_info, case_id):
     if golden_result is None:
         status, comments = 'unknown', 'No golden result present'
     else:
-        passed, comments = suite.verify(golden_result['metrics'], metrics)
+        passed, comments = suite.check(golden_result['metrics'], metrics)
         status = 'pass' if passed else 'fail'
 
     result = build_result(suite, git_info, case_id, case_input, metrics, context, status)
@@ -59,6 +59,10 @@ def validate_result(run_result):
     if type(run_result) != tuple and len(run_result) == 2:
         msg = 'Test suites must return a tuple of the form (metrics, context).  Got "{}".'
         raise ValueError(msg.format(repr(run_result)))
+
+
+def build_result_id(result):
+        return '{}_{}'.format(result['ran_on'], result['commit'])
 
 
 def build_result(suite, git_info, case_id, case_input, metrics, context, status):
@@ -75,5 +79,5 @@ def build_result(suite, git_info, case_id, case_input, metrics, context, status)
         'status': status,
     }
 
-    result['result_id'] = suite.build_result_id(result)
+    result['result_id'] = build_result_id(result)
     return result
