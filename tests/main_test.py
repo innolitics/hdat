@@ -35,3 +35,9 @@ class TestMainRun:
             hdat_cli_with_mocks(['show', 'a/1'])
 
         assert 'showing "a/1' in str(e)
+
+    def test_diff(self, hdat_cli_with_mocks, archive, mock_results):
+        with pytest.raises(AbortError) as e:
+            hdat_cli_with_mocks(['diff', 'a/1/r1', 'a/1/101_r2'])
+
+        assert 'diffing "a/1/r1" and "a/1/101_r2"' in str(e)

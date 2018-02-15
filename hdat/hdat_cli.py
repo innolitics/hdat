@@ -27,10 +27,8 @@ def parse_arguments(arguments):
 
     diff_help = 'compare two results'
     diff_parser = subparsers.add_parser('diff', help=diff_help)
-    diff_golden_help = 'result to compare to (defaults to current golden for the case)'
-    diff_parser.add_argument('goldenspec', nargs='?', default=None, metavar='<golden>', help=diff_golden_help)
-    diff_result_help = 'result being compared'
-    diff_parser.add_argument('resultspec', nargs=1, metavar='<result>', help=diff_result_help)
+    diff_result_help = 'results being compared'
+    diff_parser.add_argument('resultspec', nargs=2, metavar='<result>', help=diff_result_help)
 
     verify_help = 'move result metrics from archive to the golden store'
     verify_parser = subparsers.add_parser('verify', help=verify_help)
@@ -76,8 +74,8 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         for result in results:
             show_result(suites, result)
     elif args.command == 'diff':
-        golden_results = resolve_resultspecs(archive, args.goldenspec)
-        results = resolve_resultspecs(archive, args.resultspec)
+        golden_results = resolve_resultspecs(archive, args.resultspec[0])
+        results = resolve_resultspecs(archive, args.resultspec[1])
         for golden_result, result in zip(golden_results, results):
             diff_results(suites, golden_result, result)
     elif args.command == 'verify':
@@ -98,7 +96,7 @@ def show_result(suites, result):
 
 def diff_results(suites, golden_result, result):
     suite_id = result['suite_id']
-    golden_suite_id = golden_result['result_id']
+    golden_suite_id = golden_result['suite_id']
 
     if golden_suite_id != suite_id:
         msg = 'Can not diff results from different suites "{}" and "{}"'
