@@ -1,11 +1,9 @@
 import tempfile
-from collections import OrderedDict
 
 import pytest
 
 from hdat.store import GoldenStore, Archive
-from hdat.suite import Suite
-from hdat.resultspec import print_resultspec
+from test_suite_hdat import BasicSuiteA, BasicSuiteB
 
 
 @pytest.fixture
@@ -20,44 +18,6 @@ def tmp_archive():
     tmp_directory = tempfile.TemporaryDirectory()
     yield Archive(tmp_directory.name)
     tmp_directory.cleanup()
-
-
-class BaseSuite(Suite):
-    def check(self, old, new):
-        return old == new, 'Looks good!'
-
-    def run(self, case_input):
-        return case_input, {}
-
-    def show(self, result):
-        raise NotImplementedError('showing "{}"'.format(
-            print_resultspec(result)
-        ))
-
-    def diff(self, golden_result, result):
-        raise NotImplementedError('diffing "{}" and "{}"'.format(
-            print_resultspec(golden_result),
-            print_resultspec(result)
-        ))
-
-
-class BasicSuiteA(BaseSuite):
-    id = 'a'
-
-    def collect(self):
-        return OrderedDict([
-            ('1', 10),
-            ('2', 20),
-        ])
-
-
-class BasicSuiteB(BaseSuite):
-    id = 'b'
-
-    def collect(self):
-        return {
-            '3': 30,
-        }
 
 
 @pytest.fixture

@@ -11,6 +11,7 @@ from hdat.store import Archive, GoldenStore
 
 def main():
     cwd = os.getcwd()
+    sys.path.append(cwd)
 
     try:
         git_info = git_info_from_directory(cwd)

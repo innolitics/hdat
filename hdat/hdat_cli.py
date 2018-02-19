@@ -11,10 +11,13 @@ def parse_arguments(arguments):
     parser = argparse.ArgumentParser(prog='hdat')
     subparsers = parser.add_subparsers(dest='command', metavar='<command>')
 
+    list_help = 'list available cases, collected in the current working dir'
+    list_parser = subparsers.add_parser('list', help=list_help)
+    list_parser.add_argument('casespecs', nargs='*', default=[''], metavar='<case>')
+
     run_help = 'run cases, store results in archive, compare against goldens'
     run_parser = subparsers.add_parser('run', help=run_help)
     run_parser.add_argument('casespecs', nargs='*', default=[''], metavar='<case>')
-    run_parser.add_argument('--collect-only', default=False, action='store_true')
 
     show_help = 'visualize a single result'
     show_parser = subparsers.add_parser('show', help=show_help)
@@ -53,7 +56,7 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
     if args.command is None:
         parse_arguments(['-h'])
 
-    if args.command == 'run' and args.collect_only:
+    if args.command == 'list':
         cases = resolve_casespecs(suites, args.casespecs)
         print("\n".join(['{}/{}'.format(suite_id, case_id) for suite_id, case_id in cases]))
     elif args.command == 'run':
