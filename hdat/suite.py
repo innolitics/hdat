@@ -80,7 +80,7 @@ def _collect_suite_classes(directory):
     suite_classes = []
     for root, dirs, files in os.walk(directory, topdown=True):
         # prevent os.walk from going into hidden dirs
-        dirs = [subdir for subdir in dirs if not subdir.startswith('.')]
+        dirs[:] = [subdir for subdir in dirs if not subdir.startswith('.')]
         for filename in files:
             if filename.endswith(hdat_module_suffix):
                 module_name = filename.strip(".py")
