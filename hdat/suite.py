@@ -1,6 +1,9 @@
-import pydoc
+import importlib
+import sys
+import inspect
+import os
 
-from .util import print_error, find_here_or_in_parents, AbortError
+from .util import print_error, AbortError
 
 
 class Suite:
@@ -10,7 +13,7 @@ class Suite:
     Is responsible for collecting, running, checking, and visualizing the
     results of running the algorithm against its test cases.
     '''
-    def cases(self):
+    def collect(self):
         '''
         Collect all of the cases for this suite, and return them as a dict-like
         mapping where the keys are the "case ids" and the values are the "case
@@ -71,24 +74,26 @@ def collect_suites(directory):
 
 
 def _collect_suite_classes(directory):
-    suites_filename = find_here_or_in_parents(directory, '.hdattsuites')
-    if suites_filename is None:
-        raise AbortError('Unable to locate a ".hdattsuites" file')
+    hdat_module_suffix = '_hdat.py'
+    hdat_suite_class = Suite
 
     suite_classes = []
-    with open(suites_filename, 'r') as suites_file:
-        for line in suites_file:
-            class_location = line.strip()
-            try:
-                test_suite_class = pydoc.locate(class_location)
-            except pydoc.ErrorDuringImport as e:
-                print_error(e)
-                test_suite_class = None
+    for root, dirs, files in os.walk(directory, topdown=True):
+        # prevent os.walk from going into hidden dirs
+        dirs[:] = [subdir for subdir in dirs if not subdir.startswith('.')]
+        for filename in files:
+            if filename.endswith(hdat_module_suffix):
+                module_name = filename.strip(".py")
 
-            if test_suite_class is None:
-                msg = 'Unable to import test suite "{}"'
-                raise AbortError(msg.format(class_location))
-            else:
-                suite_classes.append(test_suite_class)
+                module_path = (os.path.relpath(root, start=directory))
+                if module_path == '.':
+                    module_spec = module_name
+                else:
+                    module_spec = os.path.join(module_path, '').replace(os.path.sep, '.') + module_name
 
+                importlib.import_module(module_spec)
+                classes = inspect.getmembers(sys.modules[module_spec], predicate=inspect.isclass)
+                for name, value in classes:
+                    if hdat_suite_class in inspect.getmro(value) and hdat_suite_class != value:
+                        suite_classes.append(value)
     return suite_classes
