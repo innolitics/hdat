@@ -86,7 +86,7 @@ def _collect_suite_classes(directory):
                 module_name = filename.strip(".py")
                 sys.path.append(root)
                 importlib.import_module(module_name)
-                classes = inspect.getmembers(sys.modules[module_name], predicate=lambda x: inspect.isclass(x))
+                classes = inspect.getmembers(sys.modules[module_name], predicate=inspect.isclass)
                 for name, value in classes:
                     if hdat_suite_class in inspect.getmro(value) and hdat_suite_class != value:
                         suite_classes.append(value)
