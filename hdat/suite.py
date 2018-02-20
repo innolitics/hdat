@@ -84,9 +84,15 @@ def _collect_suite_classes(directory):
         for filename in files:
             if filename.endswith(hdat_module_suffix):
                 module_name = filename.strip(".py")
-                sys.path.append(root)
-                importlib.import_module(module_name)
-                classes = inspect.getmembers(sys.modules[module_name], predicate=inspect.isclass)
+
+                module_path = (os.path.relpath(root, start=directory))
+                if module_path == '.':
+                    module_spec = module_name
+                else:
+                    module_spec = os.path.join(module_path, '').replace(os.path.sep, '.') + module_name
+
+                importlib.import_module(module_spec)
+                classes = inspect.getmembers(sys.modules[module_spec], predicate=inspect.isclass)
                 for name, value in classes:
                     if hdat_suite_class in inspect.getmro(value) and hdat_suite_class != value:
                         suite_classes.append(value)
