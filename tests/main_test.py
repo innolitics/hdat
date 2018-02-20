@@ -1,9 +1,7 @@
 import pytest
-import os
 
 from hdat.hdat_cli import hdat_cli
 from hdat.util import AbortError
-from hdat.suite import collect_suites
 
 
 @pytest.fixture
@@ -43,8 +41,3 @@ class TestMainRun:
             hdat_cli_with_mocks(['diff', 'a/1/r1', 'a/1/101_r2'])
 
         assert 'diffing "a/1/r1" and "a/1/101_r2"' in str(e)
-
-    def test_collect_suites(self):
-        test_path = os.path.dirname(__file__)
-        suites = collect_suites(test_path)
-        assert suites.keys() == set(['BaseSuite', 'a', 'b'])
