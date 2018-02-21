@@ -18,7 +18,15 @@ class TestSuite:
         checker = MetricsChecker(old, new)
         checker.exact('key3')
         assert checker.match() is False
-        assert len(checker.msgs()) == 2  # key3 is also checked
+        assert len(checker.msgs()) == 3  # key3 is also checked + new key2
+
+    def test_metrics_checker_new_key(self):
+        old = {'oldkey': 1}
+        new = {'oldkey': 1, 'newkey': 'value'}
+        checker = MetricsChecker(old, new)
+        checker.exact('oldkey')
+        assert checker.match() is True
+        assert len(checker.msgs()) == 1 and 'newkey' in checker.msgs()[0]
 
     @pytest.mark.parametrize("old, new, method, expected", [
         ({'item': 1.00}, {'item': 1.000000001}, 'exact', False),
