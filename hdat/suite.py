@@ -97,3 +97,82 @@ def _collect_suite_classes(directory):
                     if hdat_suite_class in inspect.getmro(value) and hdat_suite_class != value:
                         suite_classes.append(value)
     return suite_classes
+
+
+def ignore_key_errors(decoratee):
+    def decorated(*args, **kwargs):
+        try:
+            return decoratee(*args, **kwargs)
+        except KeyError:
+            pass
+    return decorated
+
+
+class MetricsChecker:
+    '''
+    Helper class for comparing metrics of new results vs golden results in suite.check()
+    '''
+    def __init__(self, old, new):
+        self._old = old
+        self._new = new
+        self._match = True
+        self._msgs = []
+        missing_metrics = set(old.keys()).difference(set(new.keys()))
+        new_metrics = set(new.keys()).difference(set(old.keys()))
+        if missing_metrics:
+            msg = 'Metric(s) in golden result {} were missing from the new run'
+            self._msgs.append(msg.format(missing_metrics))
+            self._match = False
+        if new_metrics:
+            msg = 'New metric(s) {} added to hdat test suite'
+            self._msgs.append(msg.format(new_metrics))
+
+    def _isclose(self, a, b, rel_tol=1e-09, abs_tol=0.0):
+        '''Fills in for math.isclose in 3.4'''
+        return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
+    @ignore_key_errors
+    def close(self, metric, **kwargs):
+        if not self._isclose(self._old[metric], self._new[metric], **kwargs):
+            self._match = False
+            msg = 'Metric {} value {} was not close to golden value {} within {}'
+            self._msgs.append(msg.format(metric, self._new[metric], self._old[metric], kwargs))
+
+    @ignore_key_errors
+    def exact(self, metric):
+        if self._old[metric] != self._new[metric]:
+            self._match = False
+            msg = 'Metric {} value {} did not match golden value {}'
+            self._msgs.append(msg.format(metric, self._new[metric], self._old[metric]))
+
+    @ignore_key_errors
+    def custom(self, metric, func=None):
+        result, msg = func(self._old[metric], self._new[metric])
+        if not result:
+            self._match = False
+            self._msgs.append(msg)
+
+    @ignore_key_errors
+    def can_increase(self, metric, abs_tol=0.0):
+        if (self._new[metric] + abs_tol < self._old[metric] or
+                self._isclose(self._new[metric], self._old[metric])):
+            self._match = False
+            msg = 'Metric {} value {} decreased over golden value {} more than {}'
+            self._msgs.append(msg.format(metric, self._new[metric], self._old[metric], abs_tol))
+
+    @ignore_key_errors
+    def can_decrease(self, metric, abs_tol=0.0):
+        if (self._new[metric] - abs_tol > self._old[metric] or
+                self._isclose(self._new[metric], self._old[metric])):
+            self._match = False
+            msg = 'Metric {} value {} increased over golden value {} more than {}'
+            self._msgs.append(msg.format(metric, self._new[metric], self._old[metric], abs_tol))
+
+    def msgs(self):
+        return self._msgs
+
+    def match(self):
+        return self._match
+
+    def result(self):
+        return self._match, self._msgs
