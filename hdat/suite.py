@@ -154,16 +154,16 @@ class MetricsChecker:
 
     @ignore_key_errors
     def can_increase(self, metric, abs_tol=0.0):
-        if (self._new[metric] + abs_tol < self._old[metric] or
-                self._isclose(self._new[metric], self._old[metric])):
+        if (self._new[metric] + abs_tol < self._old[metric] and
+                not self._isclose(self._new[metric], self._old[metric])):
             self._match = False
             msg = 'Metric {} value {} decreased over golden value {} more than {}'
             self._msgs.append(msg.format(metric, self._new[metric], self._old[metric], abs_tol))
 
     @ignore_key_errors
     def can_decrease(self, metric, abs_tol=0.0):
-        if (self._new[metric] - abs_tol > self._old[metric] or
-                self._isclose(self._new[metric], self._old[metric])):
+        if (self._new[metric] - abs_tol > self._old[metric] and
+                not self._isclose(self._new[metric], self._old[metric])):
             self._match = False
             msg = 'Metric {} value {} increased over golden value {} more than {}'
             self._msgs.append(msg.format(metric, self._new[metric], self._old[metric], abs_tol))

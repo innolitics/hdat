@@ -35,7 +35,9 @@ class TestSuite:
         ({'item': 1.00}, {'item': 1.0000000001}, 'close', True),
         ({'item': 4}, {'item': 3}, 'can_increase', False),
         ({'item': 4}, {'item': 5}, 'can_increase', True),
+        ({'item': 1.234}, {'item': 1.234}, 'can_increase', True),
         ({'item': 4}, {'item': 5}, 'can_decrease', False),
+        ({'item': 1.234}, {'item': 1.234}, 'can_decrease', True),
         ({'item': 4}, {'item': 3}, 'can_decrease', True)
     ])
     def test_checker_single(self, old, new, method, expected):
