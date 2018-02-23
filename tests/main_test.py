@@ -27,6 +27,11 @@ class TestMainRun:
 
         hdat_cli_with_mocks(['run'])
 
+    def test_runshow(self, hdat_cli_with_mocks):
+        with pytest.raises(AbortError) as e:
+            hdat_cli_with_mocks(['runshow', 'a'])
+        assert 'showing "a/1' in str(e)
+
     def test_show_most_recent(self, hdat_cli_with_mocks):
         with pytest.raises(AbortError) as e:
             hdat_cli_with_mocks(['run', 'a/1'])
