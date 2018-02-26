@@ -1,7 +1,7 @@
 
 # HDAT example
 
-This directory shows how to use HDAT to test a very simple image processing algorithm. The algorithm being tested, found in [image_example.py], simply flips an image upside down, then uses the `ndimage` library to apply a Gaussian blur. The test suite in [image_example_hdat.py] identifies test cases, displays images for review, and compares image metrics to test the algorithm.
+This directory shows how to use HDAT to test a very simple image processing algorithm. The algorithm being tested, found in `image_example.py`, simply flips an image upside down, then uses the `ndimage` library to apply a Gaussian blur. The test suite in `image_example_hdat.py` identifies test cases, displays images for review, and compares image metrics to test the algorithm.
 
 Dependencies are required to run the example. All can be installed with `pip`:
  * numpy
@@ -9,14 +9,14 @@ Dependencies are required to run the example. All can be installed with `pip`:
  * imageio
  * matplotlib
 
-The example also assumes that the `hdat` module has been installed with `pip`. 
+The example also assumes that the `hdat` module has been installed with `pip`.
 
 ## Listing the test cases
 List available test cases in the `hdat` directory:
 ```
 hdat list
 ```
-Two test cases with the `example-suite` suite id should appear with the casespecs `example-suite/chicken` and `example-suite/wheat`. 
+Two test cases with the `example-suite` suite id should appear with the casespecs `example-suite/chicken` and `example-suite/wheat`. Test suites from the `hdat` unit tests will also appear, but will throw a `NotImplementedError` if run.
 
 ## Running and displaying test cases
 Run the algorithm and display the resulting images:
@@ -32,7 +32,7 @@ hdat verify example-suite
 ```
 
 ## Modifying the algorithm and re-running
-The comments in [image_example.py] contain suggestions for changes to the image processing algorithm. Try making a change and re-running the test suite with:
+The comments in `image_example.py` contain suggestions for changes to the image processing algorithm. Try making a change and re-running the test suite with:
 ```
 hdat runshow example-suite
 ```
