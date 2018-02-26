@@ -1,12 +1,16 @@
 <img src="https://travis-ci.org/innolitics/hdat.svg?branch=master">
 
-# High Dimensional Algorithm Testing Tool (HDATT)
+# High Dimensional Algorithm Testing tool (HDAT)
 
-HDATT is a python library and command line tool that simplifies testing algorithms with high dimensional inputs and outputs, e.g. image processing algorithms.
+HDAT is a python library and command line tool that simplifies testing algorithms with high dimensional inputs and outputs, e.g. image processing algorithms.
 
-# Suites
+HDAT shares some principles with snapshot testing tools, such as those in [Jest](https://facebook.github.io/jest/docs/en/snapshot-testing.html). These tools are usually designed to test for regressions or changes of user interfaces in specific frameworks, instead of any high dimensional python algorithm like HDAT.
 
-An HDATT `Suite` is a python class that implements a few methods.  In particular, it implements methods that:
+An example implementation of HDAT testing can be found in the [`example`](https://github.com/innolitics/hdat/example) directory.
+
+## Suites
+
+A suite is a python class that subclasses the `Suite` class in the `hdat` module implements a few methods.  In particular, it implements methods that:
 
 1. Collect test cases
 2. Run a test case
@@ -36,7 +40,7 @@ If the automated comparison fails, it may not mean that the algorithm has actual
 
 The metrics alone are insufficient to make a manual verification, thus the run method should also record the full dimensional output (and possibly intermediate output) that can help a human manually verify that the result is in fact correct.  This additional information is called the "context".
 
-Thus, the run method of the suite must return two items
+Thus, the run method of the suite must return two items:
 
 1. Metrics - Reduced, low-dimensional numbers that can be used to automatically verify if the algorithm is still running as expected, but are sensitive enough to change if the algorithm has changed substantially
 2. Context - High dimensional output of the algorithm, as well as any other intermediate output that can be used by a human to verify a result.
@@ -52,13 +56,13 @@ This method will be given the metrics from a previous, verified run (the golden 
 
 A suite must also make it easy for humans to verify the results of running its test cases.  The `show` method is given a full result (including the metrics and the context), and it must display these results in an easy to view manner.
 
-# Stores
+## Stores
 
-Unlike many test runners that treat previous results as being transient items that loose their interest quickly, the nature of hdatt requires that historical test results be given a little more respect!  After all, the historical results are being depended on to avoid requiring all of the high-dimensional algorithm outputs from being inspected manually after each test run.
+Unlike many test runners that treat previous results as being transient items that lose their interest quickly, the nature of hdat requires that historical test results be given a little more respect!  After all, the historical results are being depended on to avoid requiring all of the high-dimensional algorithm outputs from being inspected manually after each test run.
 
 Test results are stored in a `Store`.  A store is a class that implements a few methods.
 
-When running the hdatt CLI, there are always two stores involved:
+When running the hdat CLI, there are always two stores involved:
 
 1. The golden store - the current "gold standard" metrics for each test case
 2. The save store - where all historical runs are stored for easy comparison
@@ -69,9 +73,9 @@ The golden store should be saved inside the git repository, so that if two devel
 
 The save store, on the other hand, should keep all historical results, and should keep the full context of the results so that they can be visually compared.  It should also not be kept inside the git repository.
 
-# Abstractions
+## Abstractions
 
-HDATT has the following abstractions:
+HDAT has the following abstractions:
 
 - A test *suite* runs tests against a particular algorithm
 - A test *case* is a particular "scenario" that a test suite runs
@@ -91,13 +95,13 @@ Meta data about the test result includes the current git commit, the date and ti
 
 Test results are kept in *stores*.  There are two stores that the command line tool interacts with--the *golden store* and the .  There is the *golden store*, which contains all of the most up-to-date, human-verified test results.  Then there is the *save store
 
-# Design Goals
+## Design Goals
 
 - A conceptually simple API
 - Be picky and abort easily at the start of a run, but after the run begins,
   try to catch any errors and continue.
 
-# Casespecs
+## Casespecs
 
 A casespec is a string that selects one or more test cases.  A casespec may specify a single test case, or it may specify many test cases.
 
@@ -107,7 +111,7 @@ Here are several casespecs along with the test cases they would select:
 "a" - Selects all cases in the test suite with id "a".
 "a/b" - Selects test case with id "b" in the suite with id "b".
 
-# Resultspecs
+## Resultspecs
 
 A resultspec is a string that selects one or more test results.  A result spec may specify a single result, or many results.  Every casespec can also act as a resultspec; , because there are typically many more results that need to be selected among.
 

@@ -17,10 +17,10 @@ def main():
         git_info = git_info_from_directory(cwd)
         repo_directory = repository_root(cwd)
 
-        if 'HDATT_ARCHIVE' in os.environ:
-            archive_location = os.environ['HDATT_ARCHIVE']
+        if 'HDAT_ARCHIVE' in os.environ:
+            archive_location = os.environ['HDAT_ARCHIVE']
         else:
-            archive_location = os.path.join(repo_directory, '.hdattarchive')
+            archive_location = os.path.join(repo_directory, '.hdatarchive')
         archive = Archive(archive_location)
 
         golden_store_location = os.path.join(repo_directory, 'golden_results')
