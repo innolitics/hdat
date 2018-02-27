@@ -6,7 +6,7 @@ HDAT is a python library and command line tool that simplifies testing algorithm
 
 HDAT shares some principles with snapshot testing tools, such as those in [Jest](https://facebook.github.io/jest/docs/en/snapshot-testing.html). These tools are usually designed to test for regressions or changes of user interfaces in specific frameworks, instead of any high dimensional python algorithm like HDAT.
 
-An example implementation of HDAT testing can be found in the [`example`](https://github.com/innolitics/hdat/example) directory.
+An example implementation of HDAT testing can be found in the [`example`](https://github.com/innolitics/hdat/tree/master/example) directory.
 
 ## Suites
 
