@@ -73,9 +73,10 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         cases_status = run_cases(suites, golden_store, archive, git_info, cases)
         if cases_status['error'] > 0:
             raise AbortError(_format_cases_status(cases_status))
-        results = resolve_resultspecs(archive, args.casespecs)
-        for result in results:
-            show_result(suites, result)
+        for casespec in args.casespecs:
+            results = resolve_resultspecs(archive, casespec)
+            for result in results:
+                show_result(suites, result)
     elif args.command == 'diff':
         golden_results = resolve_resultspecs(archive, args.resultspec[0])
         results = resolve_resultspecs(archive, args.resultspec[1])
