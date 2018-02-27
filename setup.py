@@ -7,7 +7,7 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-description = 'A tool for manually verifying high-dimensionality algorithms.'
+description = 'High Dimensional Algorithm Tester: A tool for manually verifying high-dimensionality algorithms.'
 
 setup(
     name='hdat',

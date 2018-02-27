@@ -13,11 +13,9 @@ class ExampleSuite(Suite):
         return {
             'chicken': {
                 'image_location': 'data/chicken.jpg',
-                'id': '1',
             },
             'wheat': {
                 'image_location': 'data/wheat.jpg',
-                'id': '2',
             }
         }
 
