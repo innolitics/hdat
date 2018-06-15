@@ -46,3 +46,9 @@ class TestMainRun:
             hdat_cli_with_mocks(['diff', 'a/1/r1', 'a/1/101_r2'])
 
         assert 'diffing "a/1/r1" and "a/1/101_r2"' in str(e)
+
+    # we need to figure out how to test this, and probably should make our
+    # mocks a bit more sophisticated... probably we should make a new test
+    # suite with several different tests
+    def test_csv(self, hdat_cli_with_mocks, mock_results):
+        hdat_cli_with_mocks(['csv', 'result_id'])

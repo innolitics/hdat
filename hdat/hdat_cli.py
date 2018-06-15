@@ -38,6 +38,16 @@ def parse_arguments(arguments):
     verify_result_help = 'results to be stripped and moved into the golden store'
     verify_parser.add_argument('resultspec', nargs='?', default='', metavar='<result>', help=verify_result_help)
 
+    # we should think through the command line API for this; we should try to
+    # mimick how other command line tools handle letting users select keys from a list;
+    # I do like the idea of printing the results to standard output; this lets
+    # the user redirect the result to a file, or just look at the output during
+    # interactive use of hdat
+    csv_help = 'print results into a CSV'
+    csv_parser = subparsers.add_parser('csv', help=csv_help)
+    csv_result_help = 'results to be printed'
+    csv_parser.add_argument('resultspec', nargs='?', default='', metavar='<result>', help=csv_result_help)
+
     return parser.parse_args(arguments)
 
 
@@ -86,6 +96,10 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         results = resolve_resultspecs(archive, args.resultspec)
         for result in results:
             golden_store.insert(result)
+    elif args.command == 'csv':
+        results = resolve_resultspecs(archive, args.resultspec)
+        print_results(results)
+
 
 
 def show_result(suites, result):
@@ -113,3 +127,41 @@ def diff_results(suites, golden_result, result):
         traceback.print_exc()
         msg = 'Error when attempting to show "{}": {}'
         raise AbortError(msg.format(print_resultspec(result), e))
+
+
+def print_results(results):
+    # this needs to be made much more general
+    keys = [
+        'suite_id',
+        'result_id',
+        'case_input.phantom',
+        'case_input.modality',
+        'metrics.TPF',
+        'metrics.FPF',
+        'metrics.max_distortion',
+        'metrics.99_distortion',
+        'metrics.95_distortion',
+        'metrics.90_distortion',
+        'metrics.mean_distortion',
+        'metrics.median_distortion',
+        'metrics.min_distortion',
+    ]
+    print(", ".join(keys))
+    for result in results:
+        data = [
+            result['suite_id'],
+            result['result_id'],
+            result['case_input']['phantom_model'],
+            result['case_input']['modality'],
+            result['metrics']['TPF'],
+            result['metrics']['FPF'],
+            result['metrics']['max_distortion'],
+            result['metrics']['99_distortion'],
+            result['metrics']['95_distortion'],
+            result['metrics']['90_distortion'],
+            result['metrics']['mean_distortion'],
+            result['metrics']['median_distortion'],
+            result['metrics']['min_distortion'],
+        ]
+        data = [str(d) for d in data]
+        print(", ".join(data))
