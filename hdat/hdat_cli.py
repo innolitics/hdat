@@ -17,16 +17,18 @@ def parse_arguments(arguments):
 
     run_help = 'run cases, store results in archive, compare against goldens'
     run_parser = subparsers.add_parser('run', help=run_help)
-    run_parser.add_argument('casespecs', nargs='*', default=[''], metavar='<case>')
+    run_case_help = 'case specifier to run'
+    run_parser.add_argument('casespecs', nargs='*', default=[''], metavar='<case>', help=run_case_help)
 
     show_help = 'visualize a single result'
     show_parser = subparsers.add_parser('show', help=show_help)
-    show_result_help = 'result specifier to show'
-    show_parser.add_argument('casespecs', nargs='*', default='', metavar='<result>', help=show_result_help)
+    show_case_help = 'case specifier to show results'
+    show_parser.add_argument('casespecs', nargs='*', default='', metavar='<case>', help=show_case_help)
 
     runshow_help = 'run then visualize a single result'
     runshow_parser = subparsers.add_parser('runshow', help=runshow_help)
-    runshow_parser.add_argument('casespecs', nargs='*', default='', metavar='<result>')
+    runshow_case_help = 'case specifier to run and show results'
+    runshow_parser.add_argument('casespecs', nargs='*', default='', metavar='<case>', help=runshow_case_help)
 
     diff_help = 'compare two results'
     diff_parser = subparsers.add_parser('diff', help=diff_help)
