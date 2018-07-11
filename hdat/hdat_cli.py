@@ -69,8 +69,9 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
     elif args.command == 'show':
         if args.casespecs:
             cases = resolve_casespecs(suites, args.casespecs)
-            for casespec in args.casespecs:
-                results = resolve_resultspecs(archive, casespec)
+            for suite_id, case_id in cases:
+                case = "".join(['{}/{}'.format(suite_id, case_id)])
+                results = resolve_resultspecs(archive, case)
                 for result in results:
                     show_result(suites, result)
         else:
