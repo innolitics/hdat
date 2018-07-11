@@ -22,11 +22,11 @@ def parse_arguments(arguments):
     show_help = 'visualize a single result'
     show_parser = subparsers.add_parser('show', help=show_help)
     show_result_help = 'result specifier to show'
-    show_parser.add_argument('resultspec', nargs="?", default='', metavar='<result>', help=show_result_help)
+    show_parser.add_argument('casespecs', nargs='*', default='', metavar='<result>', help=show_result_help)
 
     runshow_help = 'run then visualize a single result'
     runshow_parser = subparsers.add_parser('runshow', help=runshow_help)
-    runshow_parser.add_argument('casespecs', nargs=1, default='', metavar='<result>')
+    runshow_parser.add_argument('casespecs', nargs='*', default='', metavar='<result>')
 
     diff_help = 'compare two results'
     diff_parser = subparsers.add_parser('diff', help=diff_help)
@@ -65,9 +65,16 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         if cases_status['pass'] < len(cases):
             raise AbortError(_format_cases_status(cases_status))
     elif args.command == 'show':
-        results = resolve_resultspecs(archive, args.resultspec)
-        for result in results:
-            show_result(suites, result)
+        if args.casespecs:
+            cases = resolve_casespecs(suites, args.casespecs)
+            for casespec in args.casespecs:
+                results = resolve_resultspecs(archive, casespec)
+                for result in results:
+                    show_result(suites, result)
+        else:
+            results = resolve_resultspecs(archive, args.casespecs)
+            for result in results:
+                show_result(suites, result)
     elif args.command == 'runshow':
         cases = resolve_casespecs(suites, args.casespecs)
         cases_status = run_cases(suites, golden_store, archive, git_info, cases)
