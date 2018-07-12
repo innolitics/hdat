@@ -98,7 +98,8 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
             golden_store.insert(result)
     elif args.command == 'csv':
         results = resolve_resultspecs(archive, args.resultspec)
-        print_results(results)
+        for result in results:
+            print_result(result)
 
 
 
@@ -129,39 +130,34 @@ def diff_results(suites, golden_result, result):
         raise AbortError(msg.format(print_resultspec(result), e))
 
 
-def print_results(results):
-    # this needs to be made much more general
-    keys = [
-        'suite_id',
-        'result_id',
-        'case_input.phantom',
-        'case_input.modality',
-        'metrics.TPF',
-        'metrics.FPF',
-        'metrics.max_distortion',
-        'metrics.99_distortion',
-        'metrics.95_distortion',
-        'metrics.90_distortion',
-        'metrics.mean_distortion',
-        'metrics.median_distortion',
-        'metrics.min_distortion',
-    ]
-    print(", ".join(keys))
-    for result in results:
-        data = [
-            result['suite_id'],
-            result['result_id'],
-            result['case_input']['phantom_model'],
-            result['case_input']['modality'],
-            result['metrics']['TPF'],
-            result['metrics']['FPF'],
-            result['metrics']['max_distortion'],
-            result['metrics']['99_distortion'],
-            result['metrics']['95_distortion'],
-            result['metrics']['90_distortion'],
-            result['metrics']['mean_distortion'],
-            result['metrics']['median_distortion'],
-            result['metrics']['min_distortion'],
-        ]
-        data = [str(d) for d in data]
-        print(", ".join(data))
+def print_result(result):
+    keys = []
+    data = []
+
+    for key, value in result.items():
+        print(key, value)
+        if isinstance(value, dict):
+            for nested_key, nested_value in value.items():
+                print("inside:", nested_key, nested_value)
+                joined_key = ".".join([key, nested_key])
+                keys.append(joined_key)
+                data.append(nested_value)
+                print("appended {} to keys and {} to data".format(joined_key, nested_value))
+        else:
+            keys.append(key)
+            data.append(value)
+            print("appended {} to keys and {} to data".format(key, value))
+
+    data_str = [str(value) for value in data]
+
+    keys_out = ", ".join(keys)
+    data_out = ", ".join(data_str)
+
+    print("Keys: ", keys)
+    print("Values: ", data)
+    input("Keys and values printed. Press any button to continue.")
+    print(keys_out)
+    print(data_out)
+    input("Output printed. Press any button to continue.")
+
+    # have option of specifying --keys by checking if key/joined_key exists in arguments given
