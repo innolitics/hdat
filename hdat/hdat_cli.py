@@ -135,29 +135,37 @@ def print_result(result):
     data = []
 
     for key, value in result.items():
-        print(key, value)
+        # print(key, value)
         if isinstance(value, dict):
             for nested_key, nested_value in value.items():
-                print("inside:", nested_key, nested_value)
+                # print("inside:", nested_key, nested_value)
                 joined_key = ".".join([key, nested_key])
                 keys.append(joined_key)
                 data.append(nested_value)
-                print("appended {} to keys and {} to data".format(joined_key, nested_value))
+                # print("appended {} to keys and {} to data".format(joined_key, nested_value))
         else:
-            keys.append(key)
-            data.append(value)
-            print("appended {} to keys and {} to data".format(key, value))
+            if key != "context":
+                keys.append(key)
+                data.append(value)
+                # print("appended {} to keys and {} to data".format(key, value))
 
     data_str = [str(value) for value in data]
 
     keys_out = ", ".join(keys)
     data_out = ", ".join(data_str)
 
+    '''
     print("Keys: ", keys)
     print("Values: ", data)
-    input("Keys and values printed. Press any button to continue.")
+    input("Keys and values printed for case: {} in suite: {}. Press any button to continue.\n".format(result["case_id"], result["suite_id"]))
     print(keys_out)
     print(data_out)
-    input("Output printed. Press any button to continue.")
+    input("Formatted output printed for case: {} in suite: {}. Press any button to continue.\n".format(result["case_id"], result["suite_id"]))
+    '''
+
+    with open('results.csv', 'a') as f:
+        f.write("{}\n".format(keys_out))
+        f.write("{}\n".format(data_out))
+    input("Output printed to results.csv. Press any button to continue.\n")
 
     # have option of specifying --keys by checking if key/joined_key exists in arguments given
