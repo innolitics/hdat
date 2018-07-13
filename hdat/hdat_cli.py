@@ -135,51 +135,46 @@ def diff_results(suites, golden_result, result):
 def get_result_data(result, input_key_list):
     keys = []
     data = []
-
-    for key, value in result.items():
-        if "context" not in key:
-            if isinstance(value, dict):
-                for nested_key, nested_value in value.items():
-                    joined_key = ".".join([key, nested_key])
-                    if "".join([key, ".*"]) in input_key_list:
-                        keys.append(joined_key)
-                        data.append(nested_value)
-                    elif joined_key in input_key_list:
-                        keys.append(joined_key)
-                        data.append(nested_value)
-            elif key in input_key_list:
-                    keys.append(key)
-                    data.append(value)
-            else:
-                keys.append(key)
-                data.append(" ")
-
-    return keys, data
-
-
-def get_wrong_keys(input_key_list, result_keys):
-    wrong_keys = []
+    unknown_keys = []
+    found_nested_value = False
 
     for in_key in input_key_list:
-        if in_key not in result_keys:
-            matched_joined_keys = [key for key in result_keys if in_key.replace("*", "") in key]
-            if ".*" not in in_key or not matched_joined_keys:
-                wrong_keys.append(in_key)
+        if ".*" in in_key:
+            nested_in_key = in_key.replace(".*", "")
+            for result_key in result.keys():
+                if nested_in_key in result_key and isinstance(result[result_key], dict):
+                    for nested_key, nested_value in result[result_key].items():
+                        keys.append(".".join([result_key, nested_key]))
+                        data.append(nested_value)
+                    found_nested_value = True
+                    break
+            if not found_nested_value:
+                keys.append(in_key)
+                data.append(" ")
+                unknown_keys.append(in_key)
+                found_nested_value = False
+        elif in_key in result.keys():
+            keys.append(in_key)
+            data.append(result[in_key])
+        else:
+            keys.append(in_key)
+            data.append(" ")
+            unknown_keys.append(in_key)
 
-    return ", ".join(wrong_keys)
+    return keys, data, unknown_keys
 
 
 def print_result(result, input_keys_str):
     if not input_keys_str:
-        input_keys_str = 'case_id,result_id,run_on,gith_hash,metrics.*'
-    
+        input_keys_str = 'case_id,result_id,ran_on,gith_hash,metrics.*'
+
     input_key_list = input_keys_str.split(",")
 
-    result_keys, result_data = get_result_data(result, input_key_list)
+    result_keys, result_data, unknown_keys = get_result_data(result, input_key_list)
 
-    wrong_keys = get_wrong_keys(input_key_list, result_keys)
-    if wrong_keys:
-        sys.stderr.write("Keys not found: {}\n".format(wrong_keys))
+    keys_not_found = ", ".join(unknown_keys)
+    if keys_not_found:
+        sys.stderr.write("Keys not found: {}\n".format(keys_not_found))
 
     data_str = [str(value) for value in result_data]
     keys_out = ", ".join(result_keys)
