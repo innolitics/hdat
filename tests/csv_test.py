@@ -1,6 +1,3 @@
-import numpy as np
-import pytest
-
 import hdat.hdat_cli as hdat
 
 
@@ -42,7 +39,11 @@ class TestGetSingleCase:
         in_keys = ['case_id', 'result_id', 'ran_on', 'status', 'metrics.*']
 
         assert hdat.get_result_data(mock_results, in_keys) == (
-            ['case_id', 'result_id', 'ran_on', 'status', 'metrics.max', 'metrics.mean', 'metrics.min', 'metrics.size', 'metrics.std'],
+            [
+                'case_id', 'result_id', 'ran_on',
+                'status', 'metrics.max', 'metrics.mean',
+                'metrics.min', 'metrics.size', 'metrics.std'
+            ],
             ['cid', 'r1', 123.456, 'pass', 100, 50, 1, 100, 3],
             []
         )
