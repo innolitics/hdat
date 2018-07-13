@@ -1,5 +1,6 @@
 import argparse
 import traceback
+import sys
 
 from .resultspec import resolve_resultspecs, print_resultspec
 from .casespec import resolve_casespecs, select_suite
@@ -136,19 +137,22 @@ def get_result_data(result, input_key_list):
     data = []
 
     for key, value in result.items():
-        if isinstance(value, dict):
-            for nested_key, nested_value in value.items():
-                joined_key = ".".join([key, nested_key])
-                if "".join([key, ".*"]) in input_key_list:
-                    keys.append(joined_key)
-                    data.append(nested_value)
-                elif joined_key in input_key_list:
-                    keys.append(joined_key)
-                    data.append(nested_value)
-        else:
-            if "context" not in key and key in input_key_list:
+        if "context" not in key:
+            if isinstance(value, dict):
+                for nested_key, nested_value in value.items():
+                    joined_key = ".".join([key, nested_key])
+                    if "".join([key, ".*"]) in input_key_list:
+                        keys.append(joined_key)
+                        data.append(nested_value)
+                    elif joined_key in input_key_list:
+                        keys.append(joined_key)
+                        data.append(nested_value)
+            elif key in input_key_list:
+                    keys.append(key)
+                    data.append(value)
+            else:
                 keys.append(key)
-                data.append(value)
+                data.append(" ")
 
     return keys, data
 
@@ -174,17 +178,12 @@ def print_result(result, input_keys_str):
     result_keys, result_data = get_result_data(result, input_key_list)
 
     wrong_keys = get_wrong_keys(input_key_list, result_keys)
+    if wrong_keys:
+        sys.stderr.write("Keys not found: {}\n".format(wrong_keys))
 
     data_str = [str(value) for value in result_data]
     keys_out = ", ".join(result_keys)
     data_out = ", ".join(data_str)
 
-    if keys_out:
-        print("Matched data in suite {} case {}.".format(result["suite_id"], result["case_id"]))
-        print(keys_out)
-        print(data_out)
-    else:
-        print("No keys matched data in suite {} case {}.".format(result["suite_id"], result["case_id"]))
-
-    if wrong_keys:
-        print("Keys not found: {}".format(wrong_keys))
+    print(keys_out)
+    print(data_out)
