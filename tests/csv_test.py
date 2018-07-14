@@ -7,14 +7,12 @@ class TestGetKeys:
             ['case_id', 'result_id', 'ran_on']
         )
 
-
     def test_specific_metrics(self, mock_results):
         in_keys = ['case_id', 'result_id', 'metrics.mean', 'metrics.std']
 
         assert hdat.get_result_keys(mock_results[0], in_keys) == (
             ['case_id', 'result_id']
         )
-
 
     def test_with_metrics(self):
         mock_result = {
@@ -39,7 +37,6 @@ class TestGetKeys:
             'status', 'metrics.max', 'metrics.mean',
             'metrics.min', 'metrics.size', 'metrics.std'
         ]
-
 
     def test_dot_modifier(self):
         mock_result = {
@@ -70,25 +67,21 @@ class TestUnusedKeys:
 
         assert not hdat.get_unused_keys(mock_keys, distinct_keys)
 
-
     def test_some_unused(self, mock_keys):
         distinct_keys = ['case_id', 'result_id', 'commit']
 
         assert 'ran_on' in hdat.get_unused_keys(mock_keys, distinct_keys)
         assert 'metrics.*' in hdat.get_unused_keys(mock_keys, distinct_keys)
 
-
     def test_more_distinct(self, mock_keys):
         mock_keys = ['case_id', 'result_id', 'commit']
 
         assert not hdat.get_unused_keys(mock_keys, mock_keys)
 
-
     def test_non_dict_wildcard(self, mock_keys):
         distinct_keys = ['case_id', 'result_id', 'commit', 'ran_on', 'metrics']
 
         assert 'metrics.*' in hdat.get_unused_keys(mock_keys, distinct_keys)
-
 
     def test_non_wildcard(self):
         mock_keys = ['case_id', 'result_id', 'metrics']
@@ -101,10 +94,8 @@ class TestGetResults:
     def test_no_data(self, mock_results):
         assert not hdat.get_result_data('undefined_key', mock_results[0])
 
-
     def test_matched_data(self, mock_results):
         assert hdat.get_result_data('case_id', mock_results[0]) == '1'
-
 
     def test_nested_data(self):
         mock_result = {
@@ -133,7 +124,6 @@ class TestPrintResult:
         out, err = capfd.readouterr()
         assert out == 'case_id, ran_on, result_id\n1, 100, r1\n'
         assert 'commit' in err and 'metrics.*' in err
-
 
     def test_all_matching_inputs(self, mock_results, capfd):
         hdat.print_results([mock_results[0]], 'suite_id,case_id,result_id,ran_on')
