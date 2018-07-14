@@ -138,7 +138,7 @@ def get_result_keys(result, input_key_list):
                         keys.append(".".join([nested_in_key, nested_key]))
         elif in_key in result.keys():
             keys.append(in_key)
-    return keys
+    return sorted(keys)
 
 
 def get_unused_keys(input_key_list, distinct_keys):
@@ -203,8 +203,8 @@ def print_results(results, input_keys_str):
     print(keys_out)
 
     for c, value in enumerate(results_list):
-        for key in results_dict.keys():
-            data_list = [results_dict[key][c] for key in results_dict.keys()]
+        for key in distinct_keys:
+            data_list = [results_dict[key][c] for key in distinct_keys]
         data_out = ", ".join(data_list)
         print(data_out)
 

@@ -4,7 +4,7 @@ import hdat.hdat_cli as hdat
 class TestGetKeys:
     def test_keys_default(self, mock_results, mock_keys):
         assert hdat.get_result_keys(mock_results[0], mock_keys) == (
-            ['case_id', 'result_id', 'ran_on']
+            ['case_id', 'ran_on', 'result_id']
         )
 
     def test_specific_metrics(self, mock_results):
@@ -33,9 +33,9 @@ class TestGetKeys:
         in_keys = ['case_id', 'result_id', 'ran_on', 'status', 'metrics.*']
 
         assert hdat.get_result_keys(mock_result, in_keys) == [
-            'case_id', 'result_id', 'ran_on',
-            'status', 'metrics.max', 'metrics.mean',
-            'metrics.min', 'metrics.size', 'metrics.std'
+            'case_id', 'metrics.max', 'metrics.mean',
+            'metrics.min', 'metrics.size', 'metrics.std',
+            'ran_on', 'result_id', 'status'
         ]
 
     def test_dot_modifier(self):
@@ -57,7 +57,7 @@ class TestGetKeys:
         in_keys = ['case_id', 'result_id', 'commit', 'metrics.']
 
         assert hdat.get_result_keys(mock_result, in_keys) == [
-            'case_id', 'result_id', 'commit'
+            'case_id', 'commit', 'result_id'
         ]
 
 
