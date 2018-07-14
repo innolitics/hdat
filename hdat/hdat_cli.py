@@ -137,11 +137,12 @@ def get_result_data(result, input_key_list):
     data = []
     unknown_keys = []
     found_nested_value = False
+    input_key_list.sort()
 
     for in_key in input_key_list:
         if ".*" in in_key:
             nested_in_key = in_key.replace(".*", "")
-            for result_key in result.keys():
+            for result_key in sorted(result.keys()):
                 if nested_in_key in result_key and isinstance(result[result_key], dict):
                     for nested_key, nested_value in result[result_key].items():
                         keys.append(".".join([result_key, nested_key]))
@@ -166,7 +167,7 @@ def get_result_data(result, input_key_list):
 
 def print_result(result, input_keys_str):
     if not input_keys_str:
-        input_keys_str = 'case_id,result_id,ran_on,gith_hash,metrics.*'
+        input_keys_str = 'case_id,result_id,ran_on,commit,metrics.*'
 
     input_key_list = input_keys_str.split(",")
 
