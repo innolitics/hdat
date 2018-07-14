@@ -1,27 +1,23 @@
 import hdat.hdat_cli as hdat
 
 
-class TestGetSingleCase:
-    def test_default(self, mock_results):
-        in_keys = ['case_id', 'result_id', 'ran_on', 'commit', 'metrics.*']
-
-        assert hdat.get_result_data(mock_results[0], in_keys) == (
-            ['case_id', 'result_id', 'ran_on', 'commit', 'metrics.*'],
-            ['1', 'r1', 100, ' ', ' '],
-            ['commit', 'metrics.*']
+class TestGetKeys:
+    def test_keys_default(self, mock_results, mock_keys):
+        assert hdat.get_result_keys(mock_results[0], mock_keys) == (
+            ['case_id', 'result_id', 'ran_on']
         )
+
 
     def test_specific_metrics(self, mock_results):
         in_keys = ['case_id', 'result_id', 'metrics.mean', 'metrics.std']
 
-        assert hdat.get_result_data(mock_results[0], in_keys) == (
-            ['case_id', 'result_id', 'metrics.mean', 'metrics.std'],
-            ['1', 'r1', ' ', ' '],
-            ['metrics.mean', 'metrics.std']
+        assert hdat.get_result_keys(mock_results[0], in_keys) == (
+            ['case_id', 'result_id']
         )
 
+
     def test_with_metrics(self):
-        mock_results = {
+        mock_result = {
             "case_id": "cid",
             "commit": "c1",
             "metrics": {
@@ -38,26 +34,109 @@ class TestGetSingleCase:
         }
         in_keys = ['case_id', 'result_id', 'ran_on', 'status', 'metrics.*']
 
-        assert hdat.get_result_data(mock_results, in_keys) == (
-            [
-                'case_id', 'result_id', 'ran_on',
-                'status', 'metrics.max', 'metrics.mean',
-                'metrics.min', 'metrics.size', 'metrics.std'
-            ],
-            ['cid', 'r1', 123.456, 'pass', 100, 50, 1, 100, 3],
-            []
-        )
+        assert hdat.get_result_keys(mock_result, in_keys) == [
+            'case_id', 'result_id', 'ran_on',
+            'status', 'metrics.max', 'metrics.mean',
+            'metrics.min', 'metrics.size', 'metrics.std'
+        ]
+
+
+    def test_dot_modifier(self):
+        mock_result = {
+            "case_id": "cid",
+            "commit": "c1",
+            "metrics": {
+                "max": 100,
+                "mean": 50,
+                "min": 1,
+                "size": 100,
+                "std": 3
+            },
+            "ran_on": 123.456,
+            "result_id": "r1",
+            "status": "pass",
+            "suite_id": "mock_suite"
+        }
+        in_keys = ['case_id', 'result_id', 'commit', 'metrics.']
+
+        assert hdat.get_result_keys(mock_result, in_keys) == [
+            'case_id', 'result_id', 'commit'
+        ]
+
+
+class TestUnusedKeys:
+    def test_no_unused(self, mock_keys):
+        distinct_keys = mock_keys
+
+        assert not hdat.get_unused_keys(mock_keys, distinct_keys)
+
+
+    def test_some_unused(self, mock_keys):
+        distinct_keys = ['case_id', 'result_id', 'commit']
+
+        assert 'ran_on' in hdat.get_unused_keys(mock_keys, distinct_keys)
+        assert 'metrics.*' in hdat.get_unused_keys(mock_keys, distinct_keys)
+
+
+    def test_more_distinct(self, mock_keys):
+        mock_keys = ['case_id', 'result_id', 'commit']
+
+        assert not hdat.get_unused_keys(mock_keys, mock_keys)
+
+
+    def test_non_dict_wildcard(self, mock_keys):
+        distinct_keys = ['case_id', 'result_id', 'commit', 'ran_on', 'metrics']
+
+        assert 'metrics.*' in hdat.get_unused_keys(mock_keys, distinct_keys)
+
+
+    def test_non_wildcard(self):
+        mock_keys = ['case_id', 'result_id', 'metrics']
+        distinct_keys = ['case_id', 'result_id', 'metrics.mean', 'metrics.std']
+
+        assert 'metrics' in hdat.get_unused_keys(mock_keys, distinct_keys)
+
+
+class TestGetResults:
+    def test_no_data(self, mock_results):
+        assert not hdat.get_result_data('undefined_key', mock_results[0])
+
+
+    def test_matched_data(self, mock_results):
+        assert hdat.get_result_data('case_id', mock_results[0]) == '1'
+
+
+    def test_nested_data(self):
+        mock_result = {
+            "case_id": "cid",
+            "commit": "c1",
+            "metrics": {
+                "max": 100,
+                "mean": 50,
+                "min": 1,
+                "size": 100,
+                "std": 3
+            },
+            "ran_on": 123.456,
+            "result_id": "r1",
+            "status": "pass",
+            "suite_id": "mock_suite"
+        }
+
+        assert hdat.get_result_data('metrics.max', mock_result) == '100'
+        assert not hdat.get_result_data('metrics.', mock_result)
 
 
 class TestPrintResult:
     def test_print_default(self, mock_results, capfd):
-        hdat.print_result(mock_results[0], None)
+        hdat.print_results([mock_results[0]], None)
         out, err = capfd.readouterr()
-        assert out == 'case_id, result_id, ran_on, commit, metrics.*\n1, r1, 100,  ,  \n'
+        assert out == 'case_id, ran_on, result_id\n1, 100, r1\n'
         assert 'commit' in err and 'metrics.*' in err
 
-    def test_print_no_err(self, mock_results, capfd):
-        hdat.print_result(mock_results[0], 'suite_id,case_id,result_id,ran_on')
+
+    def test_all_matching_inputs(self, mock_results, capfd):
+        hdat.print_results([mock_results[0]], 'suite_id,case_id,result_id,ran_on')
         out, err = capfd.readouterr()
-        assert out == 'suite_id, case_id, result_id, ran_on\na, 1, r1, 100\n'
-        assert err == ''
+        assert out == 'case_id, ran_on, result_id, suite_id\n1, 100, r1, a\n'
+        assert not err
