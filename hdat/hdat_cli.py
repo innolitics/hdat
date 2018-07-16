@@ -130,12 +130,17 @@ def get_result_keys(result, input_key_list):
     keys = []
 
     for in_key in input_key_list:
-        if ".*" in in_key:
-            nested_in_key = in_key.replace(".*", "")
-            for result_key in result.keys():
-                if nested_in_key in result_key and isinstance(result[result_key], dict):
-                    for nested_key in result[result_key].keys():
-                        keys.append(".".join([nested_in_key, nested_key]))
+        if "." in in_key:
+            if "*" in in_key:
+                base_in_key = in_key.replace(".*", "")
+                if base_in_key in result.keys() and isinstance(result[base_in_key], dict):
+                    for nested_key in result[base_in_key].keys():
+                        keys.append(".".join([base_in_key, nested_key]))
+            else:
+                base_in_key, nested_in_key = in_key.split(".")
+                if base_in_key in result.keys() and isinstance(result[base_in_key], dict):
+                    if nested_in_key in result[base_in_key].keys():
+                        keys.append(".".join([base_in_key, nested_in_key]))
         elif in_key in result.keys():
             keys.append(in_key)
     return sorted(keys)
@@ -184,10 +189,11 @@ def build_result_csv_dict(distinct_keys, results_list):
 def print_results(results, input_keys_str):
     distinct_keys = []
     results_list = [result for result in results]
+    data_list = []
 
     if not input_keys_str:
         input_keys_str = 'case_id,result_id,ran_on,commit,metrics.*'
-    input_key_list = input_keys_str.split(",")
+    input_key_list = input_keys_str.replace(" ","").split(",")
 
     for result in results_list:
         distinct_keys = union(distinct_keys, get_result_keys(result, input_key_list))
@@ -199,14 +205,16 @@ def print_results(results, input_keys_str):
         err_out = ", ".join(keys_not_found)
         sys.stderr.write("Keys not found: {}\n".format(err_out))
 
-    keys_out = ", ".join(distinct_keys)
-    print(keys_out)
+    if distinct_keys:
+        keys_out = ", ".join(distinct_keys)
+        print(keys_out)
 
     for c, value in enumerate(results_list):
         for key in distinct_keys:
             data_list = [results_dict[key][c] for key in distinct_keys]
-        data_out = ", ".join(data_list)
-        print(data_out)
+        if data_list:
+            data_out = ", ".join(data_list)
+            print(data_out)
 
 
 def union(list1, list2):
