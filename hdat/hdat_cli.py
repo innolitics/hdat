@@ -67,15 +67,8 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         if cases_status['pass'] < len(cases):
             raise AbortError(_format_cases_status(cases_status))
     elif args.command == 'show':
-        if args.casespecs:
-            cases = resolve_casespecs(suites, args.casespecs)
-            for suite_id, case_id in cases:
-                case = "".join(['{}/{}'.format(suite_id, case_id)])
-                results = resolve_resultspecs(archive, case)
-                for result in results:
-                    show_result(suites, result)
-        else:
-            results = resolve_resultspecs(archive, args.casespecs)
+        for resultspec in args.resultspec:
+            results = resolve_resultspecs(archive, resultspec)
             for result in results:
                 show_result(suites, result)
     elif args.command == 'runshow':
