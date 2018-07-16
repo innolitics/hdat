@@ -165,7 +165,7 @@ def get_result_data(key, result):
         return False
 
 
-def build_result_dict(distinct_keys, results_list):
+def build_result_csv_dict(distinct_keys, results_list):
     results_dict = {}
 
     for key in distinct_keys:
@@ -192,7 +192,7 @@ def print_results(results, input_keys_str):
     for result in results_list:
         distinct_keys = union(distinct_keys, get_result_keys(result, input_key_list))
 
-    results_dict = build_result_dict(distinct_keys, results_list)
+    results_dict = build_result_csv_dict(distinct_keys, results_list)
 
     keys_not_found = get_unused_keys(input_key_list, distinct_keys)
     if keys_not_found:
