@@ -78,3 +78,8 @@ def archive(tmp_archive, mock_results):
     for result in mock_results:
         tmp_archive.insert(result)
     return tmp_archive
+
+
+@pytest.fixture
+def mock_keys():
+    return ['case_id', 'result_id', 'commit', 'ran_on', 'metrics.*']
