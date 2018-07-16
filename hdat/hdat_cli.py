@@ -18,16 +18,18 @@ def parse_arguments(arguments):
 
     run_help = 'run cases, store results in archive, compare against goldens'
     run_parser = subparsers.add_parser('run', help=run_help)
-    run_parser.add_argument('casespecs', nargs='*', default=[''], metavar='<case>')
+    run_case_help = 'case specifier to run'
+    run_parser.add_argument('casespecs', nargs='*', default=[''], metavar='<case>', help=run_case_help)
 
     show_help = 'visualize a single result'
     show_parser = subparsers.add_parser('show', help=show_help)
     show_result_help = 'result specifier to show'
-    show_parser.add_argument('resultspec', nargs="?", default='', metavar='<result>', help=show_result_help)
+    show_parser.add_argument('resultspec', nargs='*', default='', metavar='<result>', help=show_result_help)
 
     runshow_help = 'run then visualize a single result'
     runshow_parser = subparsers.add_parser('runshow', help=runshow_help)
-    runshow_parser.add_argument('casespecs', nargs=1, default='', metavar='<result>')
+    runshow_case_help = 'case specifier to run and show results'
+    runshow_parser.add_argument('casespecs', nargs='*', default='', metavar='<case>', help=runshow_case_help)
 
     diff_help = 'compare two results'
     diff_parser = subparsers.add_parser('diff', help=diff_help)
@@ -73,9 +75,10 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         if cases_status['pass'] < len(cases):
             raise AbortError(_format_cases_status(cases_status))
     elif args.command == 'show':
-        results = resolve_resultspecs(archive, args.resultspec)
-        for result in results:
-            show_result(suites, result)
+        for resultspec in args.resultspec:
+            results = resolve_resultspecs(archive, resultspec)
+            for result in results:
+                show_result(suites, result)
     elif args.command == 'runshow':
         cases = resolve_casespecs(suites, args.casespecs)
         cases_status = run_cases(suites, golden_store, archive, git_info, cases)
