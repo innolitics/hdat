@@ -193,7 +193,7 @@ def print_results(results, input_keys_str):
 
     if not input_keys_str:
         input_keys_str = 'case_id,result_id,ran_on,commit,metrics.*'
-    input_key_list = input_keys_str.replace(" ","").split(",")
+    input_key_list = input_keys_str.replace(" ", "").split(",")
 
     for result in results_list:
         distinct_keys = union(distinct_keys, get_result_keys(result, input_key_list))
