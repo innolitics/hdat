@@ -145,7 +145,7 @@ def get_unused_keys(input_key_list, distinct_keys):
     unused_keys = list(set(input_key_list)-set(distinct_keys))
     for undefined_key in unused_keys:
         if ".*" in undefined_key:
-            base_key, wildcard = undefined_key.split(".")
+            base_key, _ = undefined_key.split(".")
             for key in distinct_keys:
                 if base_key in key and "." in key:
                     unused_keys.remove(undefined_key)
