@@ -22,8 +22,8 @@ def parse_arguments(arguments):
 
     show_help = 'visualize a single result'
     show_parser = subparsers.add_parser('show', help=show_help)
-    show_case_help = 'case specifier to show results'
-    show_parser.add_argument('casespecs', nargs='*', default='', metavar='<case>', help=show_case_help)
+    show_result_help = 'result specifier to show'
+    show_parser.add_argument('resultspec', nargs='*', default='', metavar='<result>', help=show_result_help)
 
     runshow_help = 'run then visualize a single result'
     runshow_parser = subparsers.add_parser('runshow', help=runshow_help)
