@@ -82,7 +82,10 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         for resultspec in args.resultspec:
             results = resolve_resultspecs(archive, resultspec)
             for result in results:
-                show_result(suites, result)
+                if result['case_id'] in suites[result['suite_id']].collect().keys():
+                    show_result(suites, result)
+                else:
+                    print('Selected case {} does not exist in suite {}'.format(result['case_id'], result['suite_id']))
     elif args.command == 'runshow':
         cases = resolve_casespecs(suites, args.casespecs)
         cases_status = run_cases(suites, golden_store, archive, git_info, cases)
