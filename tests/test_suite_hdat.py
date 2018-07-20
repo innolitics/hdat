@@ -14,9 +14,10 @@ class BaseSuite(Suite):
         return OrderedDict()
 
     def show(self, result):
-        raise NotImplementedError('showing "{}"'.format(
+        print("Succesfully showing suite {} case {}.".format(result['suite_id'], result['case_id']))
+        '''raise NotImplementedError('showing "{}"'.format(
             print_resultspec(result)
-        ))
+        ))'''
 
     def diff(self, golden_result, result):
         raise NotImplementedError('diffing "{}" and "{}"'.format(
