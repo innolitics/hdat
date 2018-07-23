@@ -131,7 +131,6 @@ def diff_results(suites, golden_result, result):
 
 def get_result_keys(result, input_key_list):
     keys = []
-
     for in_key in input_key_list:
         if "." in in_key:
             if "*" in in_key:
@@ -173,35 +172,35 @@ def get_result_data(key, result):
         return False
 
 
-def build_result_csv_dict(distinct_keys, results_list):
+def build_result_csv_dict(distinct_keys, all_data):
     results_dict = {}
-
     for key in distinct_keys:
         results_dict[key] = list()
 
-    for result in results_list:
+    for result_keys, result_values in all_data:
         for key in results_dict.keys():
-            result_data = get_result_data(key, result)
-            if result_data:
-                results_dict[key].append(result_data)
+            if key in result_keys:
+                results_dict[key].append(result_values[result_keys.index(key)])
             else:
                 results_dict[key].append(" ")
     return results_dict
 
 
 def print_results(results, input_keys_str):
-    distinct_keys = []
-    results_list = [result for result in results]
-    data_list = []
-
     if not input_keys_str:
         input_keys_str = 'case_id,result_id,ran_on,commit,metrics.*'
-    input_key_list = input_keys_str.replace(" ", "").split(",")
+    input_key_list = [key.strip() for key in input_keys_str.split(",")]
 
-    for result in results_list:
-        distinct_keys = union(distinct_keys, get_result_keys(result, input_key_list))
+    all_data = []
+    for result in results:
+        result_keys = get_result_keys(result, input_key_list)
+        for key in result_keys:
+            data_list = [get_result_data(key, result) for key in result_keys]
+        all_data.append((result_keys, data_list))
 
-    results_dict = build_result_csv_dict(distinct_keys, results_list)
+    distinct_keys = get_distinct_keys(result_keys, all_data)
+
+    results_dict = build_result_csv_dict(distinct_keys, all_data)
 
     keys_not_found = get_unused_keys(input_key_list, distinct_keys)
     if keys_not_found:
@@ -212,13 +211,20 @@ def print_results(results, input_keys_str):
         keys_out = ", ".join(distinct_keys)
         print(keys_out)
 
-    for c, value in enumerate(results_list):
+    data_list = []
+    for i in range(len(all_data)):
         for key in distinct_keys:
-            data_list = [results_dict[key][c] for key in distinct_keys]
+            data_list = [results_dict[key][i] for key in distinct_keys]
         if data_list:
             data_out = ", ".join(data_list)
             print(data_out)
 
 
-def union(list1, list2):
-    return sorted(list(set(list1) | set(list2)))
+def get_distinct_keys(result_keys, all_data):
+    distinct_keys = set()
+
+    for result_keys, _ in all_data:
+        for key in result_keys:
+            distinct_keys.add(key)
+
+    return sorted(list(distinct_keys))
