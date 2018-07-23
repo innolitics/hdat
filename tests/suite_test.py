@@ -16,7 +16,7 @@ class TestSuite:
         old = {'key1': 1, 'key3': 'value1'}
         new = {'key2': 1, 'key3': 'value2'}
         checker = MetricsChecker(old, new)
-        checker.exact('key3')
+        checker.is_exact('key3')
         assert checker.match() is False
         assert len(checker.msgs()) == 3  # key3 is also checked + new key2
 
@@ -24,15 +24,15 @@ class TestSuite:
         old = {'oldkey': 1}
         new = {'oldkey': 1, 'newkey': 'value'}
         checker = MetricsChecker(old, new)
-        checker.exact('oldkey')
+        checker.is_exact('oldkey')
         assert checker.match() is True
         assert len(checker.msgs()) == 1 and 'newkey' in checker.msgs()[0]
 
     @pytest.mark.parametrize("old, new, method, expected", [
-        ({'item': 1.00}, {'item': 1.000000001}, 'exact', False),
-        ({'item': 1}, {'item': 1}, 'exact', True),
-        ({'item': 1}, {'item': 2}, 'close', False),
-        ({'item': 1.00}, {'item': 1.0000000001}, 'close', True),
+        ({'item': 1.00}, {'item': 1.000000001}, 'is_exact', False),
+        ({'item': 1}, {'item': 1}, 'is_exact', True),
+        ({'item': 1}, {'item': 2}, 'is_close', False),
+        ({'item': 1.00}, {'item': 1.0000000001}, 'is_close', True),
         ({'item': 4}, {'item': 3}, 'can_increase', False),
         ({'item': 4}, {'item': 5}, 'can_increase', True),
         ({'item': 1.234}, {'item': 1.234}, 'can_increase', True),
@@ -85,10 +85,10 @@ class TestSuite:
         old = {'float': 1.00, 'float_increase': 1.00, 'float_decrease': 1.00, 'string': 'one', 'custom': 2}
         new = {'float': 1.0000000001, 'float_increase': 1.1, 'float_decrease': 0.9, 'string': 'one', 'custom': 4}
         checker = MetricsChecker(old, new)
-        checker.close('float', abs_tol=0.01)
+        checker.is_close('float', abs_tol=0.01)
         checker.can_increase('float_increase')
         checker.can_decrease('float_decrease')
-        checker.exact('string')
+        checker.is_exact('string')
         checker.custom('custom', lambda x, y: (x % 2 == 0 and y % 2 == 0, 'not even'))
         assert checker.match() is True and checker.result()[0] is True
 
@@ -96,10 +96,10 @@ class TestSuite:
         old = {'float': 1.00, 'float_increase': 1.00, 'float_decrease': 1.00, 'string': 'one', 'custom': 2}
         new = {'float': 1.01, 'float_increase': 0.89, 'float_decrease': 1.11, 'string': 'two', 'custom': 5}
         checker = MetricsChecker(old, new)
-        checker.close('float')
+        checker.is_close('float')
         checker.can_increase('float_increase', abs_tol=0.1)
         checker.can_decrease('float_decrease', abs_tol=0.1)
-        checker.exact('string')
+        checker.is_exact('string')
         checker.custom('custom', lambda x, y: (x % 2 == 0 and y % 2 == 0, 'not even'))
         assert checker.match() is False and checker.result()[0] is False
         assert len(checker.msgs()) == 5
