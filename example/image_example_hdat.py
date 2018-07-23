@@ -21,11 +21,11 @@ class ExampleSuite(Suite):
 
     def check(self, golden_metrics, metrics):
         checker = MetricsChecker(golden_metrics, metrics)
-        checker.exact('size')
-        checker.close('mean')
+        checker.is_exact('size')
+        checker.is_close('mean')
         checker.can_decrease('std')
-        checker.close('min')
-        checker.close('max')
+        checker.is_close('min')
+        checker.is_close('max')
         return checker.result()
 
     def run(self, case_input):

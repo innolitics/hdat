@@ -127,19 +127,19 @@ class MetricsChecker:
             msg = 'New metric(s) {} added to hdat test suite'
             self._msgs.append(msg.format(new_metrics))
 
-    def _isclose(self, a, b, rel_tol=1e-09, abs_tol=0.0):
+    def _is_close(self, a, b, rel_tol=1e-09, abs_tol=0.0):
         '''Fills in for math.isclose in 3.4'''
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
     @ignore_key_errors
-    def close(self, metric, **kwargs):
-        if not self._isclose(self._old[metric], self._new[metric], **kwargs):
+    def is_close(self, metric, **kwargs):
+        if not self._is_close(self._old[metric], self._new[metric], **kwargs):
             self._match = False
             msg = 'Metric {} value {} was not close to golden value {} within {}'
             self._msgs.append(msg.format(metric, self._new[metric], self._old[metric], kwargs))
 
     @ignore_key_errors
-    def exact(self, metric):
+    def is_exact(self, metric):
         if self._old[metric] != self._new[metric]:
             self._match = False
             msg = 'Metric {} value {} did not match golden value {}'
@@ -155,7 +155,7 @@ class MetricsChecker:
     @ignore_key_errors
     def can_increase(self, metric, abs_tol=0.0):
         if (self._new[metric] + abs_tol < self._old[metric] and
-                not self._isclose(self._new[metric], self._old[metric])):
+                not self._is_close(self._new[metric], self._old[metric])):
             self._match = False
             msg = 'Metric {} value {} decreased over golden value {} more than {}'
             self._msgs.append(msg.format(metric, self._new[metric], self._old[metric], abs_tol))
@@ -163,7 +163,7 @@ class MetricsChecker:
     @ignore_key_errors
     def can_decrease(self, metric, abs_tol=0.0):
         if (self._new[metric] - abs_tol > self._old[metric] and
-                not self._isclose(self._new[metric], self._old[metric])):
+                not self._is_close(self._new[metric], self._old[metric])):
             self._match = False
             msg = 'Metric {} value {} increased over golden value {} more than {}'
             self._msgs.append(msg.format(metric, self._new[metric], self._old[metric], abs_tol))
