@@ -114,9 +114,6 @@ class TestUnusedKeys:
 
 
 class TestGetResults:
-    def test_no_data(self, mock_results):
-        assert not hdat.get_result_data('undefined_key', mock_results[0])
-
     def test_matched_data(self, mock_results):
         assert hdat.get_result_data('case_id', mock_results[0]) == '1'
 

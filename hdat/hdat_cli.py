@@ -6,6 +6,8 @@ from .resultspec import resolve_resultspecs, print_resultspec
 from .casespec import resolve_casespecs, select_suite
 from .runner import run_cases
 from .util import AbortError
+from collections import defaultdict
+from functools import reduce
 
 
 def parse_arguments(arguments):
@@ -133,13 +135,12 @@ def get_result_keys(result, input_key_list):
     keys = []
     for in_key in input_key_list:
         if "." in in_key:
-            if "*" in in_key:
-                base_in_key = in_key.replace(".*", "")
+            base_in_key, nested_in_key = in_key.split(".")
+            if nested_in_key == "*":
                 if base_in_key in result.keys() and isinstance(result[base_in_key], dict):
                     for nested_key in result[base_in_key].keys():
                         keys.append(".".join([base_in_key, nested_key]))
             else:
-                base_in_key, nested_in_key = in_key.split(".")
                 if base_in_key in result.keys() and isinstance(result[base_in_key], dict):
                     if nested_in_key in result[base_in_key].keys():
                         keys.append(".".join([base_in_key, nested_in_key]))
@@ -150,13 +151,13 @@ def get_result_keys(result, input_key_list):
 
 def get_unused_keys(input_key_list, distinct_keys):
     unused_keys = list(set(input_key_list)-set(distinct_keys))
-    for undefined_key in unused_keys:
-        if ".*" in undefined_key:
-            base_key, _ = undefined_key.split(".")
-            for key in distinct_keys:
-                if base_key in key and "." in key:
-                    unused_keys.remove(undefined_key)
-                    break
+    wildcard_keys = filter((lambda x: ".*" in x), unused_keys)
+    for undefined_key in wildcard_keys:
+        base_key, _ = undefined_key.split(".")
+        for key in distinct_keys:
+            if base_key in key and "." in key:
+                unused_keys.remove(undefined_key)
+                break
     return sorted(unused_keys)
 
 
@@ -166,23 +167,18 @@ def get_result_data(key, result):
         if isinstance(result[base_key], dict):
             if nested_key in result[base_key].keys():
                 return str(result[base_key][nested_key])
-    elif key in result.keys():
-        return str(result[key])
     else:
-        return False
+        return str(result[key])
 
 
 def build_result_csv_dict(distinct_keys, all_data):
-    results_dict = {}
-    for key in distinct_keys:
-        results_dict[key] = list()
-
+    results_dict = defaultdict()
     for result_keys, result_values in all_data:
-        for key in results_dict.keys():
+        for key in distinct_keys:
             if key in result_keys:
-                results_dict[key].append(result_values[result_keys.index(key)])
+                results_dict.setdefault(key, []).append(result_values[result_keys.index(key)])
             else:
-                results_dict[key].append(" ")
+                results_dict.setdefault(key, []).append(" ")
     return results_dict
 
 
@@ -194,15 +190,14 @@ def print_results(results, input_keys_str):
     all_data = []
     for result in results:
         result_keys = get_result_keys(result, input_key_list)
-        for key in result_keys:
-            data_list = [get_result_data(key, result) for key in result_keys]
+        data_list = [get_result_data(key, result) for key in result_keys]
         all_data.append((result_keys, data_list))
 
-    distinct_keys = get_distinct_keys(result_keys, all_data)
-
+    keys_set = [set(result_keys) for result_keys, _ in all_data]
+    distinct_keys = sorted(list(reduce(set.union, keys_set)))
     results_dict = build_result_csv_dict(distinct_keys, all_data)
-
     keys_not_found = get_unused_keys(input_key_list, distinct_keys)
+
     if keys_not_found:
         err_out = ", ".join(keys_not_found)
         sys.stderr.write("Keys not found: {}\n".format(err_out))
@@ -218,13 +213,3 @@ def print_results(results, input_keys_str):
         if data_list:
             data_out = ", ".join(data_list)
             print(data_out)
-
-
-def get_distinct_keys(result_keys, all_data):
-    distinct_keys = set()
-
-    for result_keys, _ in all_data:
-        for key in result_keys:
-            distinct_keys.add(key)
-
-    return sorted(list(distinct_keys))
