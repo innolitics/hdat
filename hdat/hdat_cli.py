@@ -3,9 +3,9 @@ import traceback
 
 from .resultspec import resolve_resultspecs, print_resultspec
 from .casespec import resolve_casespecs, select_suite
+from .csv import print_results
 from .runner import run_cases
 from .util import AbortError
-from collections import defaultdict
 
 
 def parse_arguments(arguments):
@@ -75,6 +75,10 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         if cases_status['pass'] < len(cases):
             raise AbortError(_format_cases_status(cases_status))
     elif args.command == 'show':
+        if not args.resultspec:
+            results = resolve_resultspecs(archive, args.resultspec)
+            for result in results:
+                show_result(suites, result)
         for resultspec in args.resultspec:
             results = resolve_resultspecs(archive, resultspec)
             for result in results:
@@ -127,52 +131,3 @@ def diff_results(suites, golden_result, result):
         traceback.print_exc()
         msg = 'Error when attempting to show "{}": {}'
         raise AbortError(msg.format(print_resultspec(result), e))
-
-
-def get_result_keys(result, input_key_list):
-    keys = []
-    for in_key in input_key_list:
-        if "." in in_key:
-            base_in_key, nested_in_key = in_key.split(".")
-            if nested_in_key == "*":
-                if base_in_key in result.keys() and isinstance(result[base_in_key], dict):
-                    for nested_key in result[base_in_key].keys():
-                        keys.append(".".join([base_in_key, nested_key]))
-            else:
-                if base_in_key in result.keys() and isinstance(result[base_in_key], dict):
-                    if nested_in_key in result[base_in_key].keys():
-                        keys.append(".".join([base_in_key, nested_in_key]))
-        elif in_key in result.keys():
-            keys.append(in_key)
-    return sorted(keys)
-
-
-def get_result_data(key, result):
-    if "." in key:
-        base_key, nested_key = key.split(".")
-        if isinstance(result[base_key], dict):
-            if nested_key in result[base_key].keys():
-                return str(result[base_key][nested_key])
-    else:
-        return str(result[key])
-
-
-def print_results(results, input_keys_str):
-    if not input_keys_str:
-        input_keys_str = 'case_id,result_id,ran_on,commit,metrics.*'
-    input_key_list = [key.strip() for key in input_keys_str.split(",")]
-
-    keys = set()
-    data = []
-    for result in results:
-        result_data = defaultdict(lambda: '')
-        for key in get_result_keys(result, input_key_list):
-            keys.add(key)
-            result_data[key] = get_result_data(key, result)
-        data.append(result_data)
-
-    sorted_keys = sorted(list(keys))
-    print(", ".join(sorted_keys))
-    for result_data in data:
-        data_out = [result_data[k] for k in sorted_keys]
-        print(", ".join(data_out))
