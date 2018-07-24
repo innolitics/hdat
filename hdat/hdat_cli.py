@@ -149,18 +149,6 @@ def get_result_keys(result, input_key_list):
     return sorted(keys)
 
 
-def get_unused_keys(input_key_list, distinct_keys):
-    unused_keys = list(set(input_key_list)-set(distinct_keys))
-    wildcard_keys = filter((lambda x: ".*" in x), unused_keys)
-    for undefined_key in wildcard_keys:
-        base_key, _ = undefined_key.split(".")
-        for key in distinct_keys:
-            if base_key in key and "." in key:
-                unused_keys.remove(undefined_key)
-                break
-    return sorted(unused_keys)
-
-
 def get_result_data(key, result):
     if "." in key:
         base_key, nested_key = key.split(".")
@@ -171,45 +159,22 @@ def get_result_data(key, result):
         return str(result[key])
 
 
-def build_result_csv_dict(distinct_keys, all_data):
-    results_dict = defaultdict()
-    for result_keys, result_values in all_data:
-        for key in distinct_keys:
-            if key in result_keys:
-                results_dict.setdefault(key, []).append(result_values[result_keys.index(key)])
-            else:
-                results_dict.setdefault(key, []).append(" ")
-    return results_dict
-
-
 def print_results(results, input_keys_str):
     if not input_keys_str:
         input_keys_str = 'case_id,result_id,ran_on,commit,metrics.*'
     input_key_list = [key.strip() for key in input_keys_str.split(",")]
 
-    all_data = []
+    keys = set()
+    data = []
     for result in results:
-        result_keys = get_result_keys(result, input_key_list)
-        data_list = [get_result_data(key, result) for key in result_keys]
-        all_data.append((result_keys, data_list))
+        result_data = defaultdict(lambda: '')
+        for key in get_result_keys(result, input_key_list):
+            keys.add(key)
+            result_data[key] = get_result_data(key, result)
+        data.append(result_data)
 
-    keys_set = [set(result_keys) for result_keys, _ in all_data]
-    distinct_keys = sorted(list(reduce(set.union, keys_set)))
-    results_dict = build_result_csv_dict(distinct_keys, all_data)
-    keys_not_found = get_unused_keys(input_key_list, distinct_keys)
-
-    if keys_not_found:
-        err_out = ", ".join(keys_not_found)
-        sys.stderr.write("Keys not found: {}\n".format(err_out))
-
-    if distinct_keys:
-        keys_out = ", ".join(distinct_keys)
-        print(keys_out)
-
-    data_list = []
-    for i in range(len(all_data)):
-        for key in distinct_keys:
-            data_list = [results_dict[key][i] for key in distinct_keys]
-        if data_list:
-            data_out = ", ".join(data_list)
-            print(data_out)
+    sorted_keys = sorted(list(keys))
+    print(", ".join(sorted_keys))
+    for result_data in data:
+        data_out = [result_data[k] for k in sorted_keys]
+        print(", ".join(data_out))

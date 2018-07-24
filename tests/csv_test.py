@@ -84,34 +84,6 @@ class TestGetKeys:
         ]
 
 
-class TestUnusedKeys:
-    def test_no_unused(self, mock_keys):
-        distinct_keys = mock_keys
-
-        assert not hdat.get_unused_keys(mock_keys, distinct_keys)
-
-    def test_some_unused(self, mock_keys):
-        distinct_keys = ['case_id', 'result_id', 'commit']
-
-        assert 'ran_on' in hdat.get_unused_keys(mock_keys, distinct_keys)
-        assert 'metrics.*' in hdat.get_unused_keys(mock_keys, distinct_keys)
-
-    def test_more_distinct(self, mock_keys):
-        mock_keys = ['case_id', 'result_id', 'commit']
-
-        assert not hdat.get_unused_keys(mock_keys, mock_keys)
-
-    def test_non_dict_wildcard(self, mock_keys):
-        distinct_keys = ['case_id', 'result_id', 'commit', 'ran_on', 'metrics']
-
-        assert 'metrics.*' in hdat.get_unused_keys(mock_keys, distinct_keys)
-
-    def test_non_wildcard(self):
-        mock_keys = ['case_id', 'result_id', 'metrics']
-        distinct_keys = ['case_id', 'result_id', 'metrics.mean', 'metrics.std']
-
-        assert 'metrics' in hdat.get_unused_keys(mock_keys, distinct_keys)
-
 
 class TestGetResults:
     def test_matched_data(self, mock_results):
@@ -143,10 +115,8 @@ class TestPrintResult:
         hdat.print_results([mock_results[0]], None)
         out, err = capfd.readouterr()
         assert out == 'case_id, ran_on, result_id\n1, 100, r1\n'
-        assert 'commit' in err and 'metrics.*' in err
 
     def test_all_matching_inputs(self, mock_results, capfd):
         hdat.print_results([mock_results[0]], 'suite_id,case_id,result_id,ran_on')
         out, err = capfd.readouterr()
         assert out == 'case_id, ran_on, result_id, suite_id\n1, 100, r1, a\n'
-        assert not err
