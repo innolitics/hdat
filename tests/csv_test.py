@@ -84,7 +84,6 @@ class TestGetKeys:
         ]
 
 
-
 class TestGetResults:
     def test_matched_data(self, mock_results):
         assert hdat.get_result_data('case_id', mock_results[0]) == '1'

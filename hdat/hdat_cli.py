@@ -1,13 +1,11 @@
 import argparse
 import traceback
-import sys
 
 from .resultspec import resolve_resultspecs, print_resultspec
 from .casespec import resolve_casespecs, select_suite
 from .runner import run_cases
 from .util import AbortError
 from collections import defaultdict
-from functools import reduce
 
 
 def parse_arguments(arguments):
