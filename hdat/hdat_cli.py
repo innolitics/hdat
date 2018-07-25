@@ -3,7 +3,7 @@ import traceback
 
 from .resultspec import resolve_resultspecs, print_resultspec
 from .casespec import resolve_casespecs, select_suite
-from .csv import print_results
+from .reports import print_results
 from .runner import run_cases
 from .util import AbortError
 

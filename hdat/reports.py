@@ -17,12 +17,17 @@ def expand_key_parts(result, nested_key):
 
 def get_nested_item(result, nested_key):
     num_levels = len(nested_key)
-    if num_levels == 0 or nested_key[0] not in result:
+    try:
+        if num_levels == 0 or nested_key[0] not in result:
+            return
+        elif num_levels == 1:
+            return result[nested_key[0]]
+        else:
+            return get_nested_item(result[nested_key[0]], nested_key[1:])
+    except TypeError:
+        error_msg = 'Result value "{}" is not iterable and has no specifier "{}"\n'
+        sys.stderr.write(error_msg.format(result, nested_key[0]))
         return
-    elif num_levels == 1:
-        return result[nested_key[0]]
-    else:
-        return get_nested_item(result[nested_key[0]], nested_key[1:])
 
 
 def print_results(results, input_keys_str):
