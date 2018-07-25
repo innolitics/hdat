@@ -1,8 +1,8 @@
 # To enable this bash completion, source this file:
 #
-# source /etc/bash_completion.d/hdat_completion
+# source ~/bash_completion.d/hdat_completion
 # or
-# . /etc/bash_completion.d/hdat_completion
+# . ~/bash_completion.d/hdat_completion
 #
 # To uninstall, remove the file from "bash_completion.d"
 
