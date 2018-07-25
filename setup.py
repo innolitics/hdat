@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 from os import path
 
 here = path.abspath(path.dirname(__file__))
-completion_dir = '/'.join([path.expanduser('~'), 'bash_completion.d/'])
+completion_dir = path.join(path.expanduser('~'), 'bash_completion.d/')
 
 description = 'High Dimensional Algorithm Tester: A tool for manually verifying high-dimensionality algorithms.'
 
