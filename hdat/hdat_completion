@@ -1,0 +1,30 @@
+# To enable this bash completion, source this file:
+#
+# source ~/bash_completion.d/hdat_completion
+# or
+# . ~/bash_completion.d/hdat_completion
+#
+# To uninstall, remove the file from "bash_completion.d"
+
+_hdat()
+{
+  local cur prev commands
+
+  cur=${COMP_WORDS[COMP_CWORD]}
+  prev=${COMP_WORDS[COMP_CWORD-1]}
+  commands='csv diff list run runshow show verify'
+
+  case "$prev" in
+    hdat)
+      COMPREPLY=( $(compgen -W '$commands' -- $cur) )
+      return 0;;
+    run | show)
+      COMPREPLY=( $(compgen -W '$(hdat list)' -- $cur) )
+      return 0;;
+    runshow)
+      COMPREPLY=( $(compgen -W '$(hdat list | sed "s/\/.*//")' -- $cur) )
+      return 0;;
+  esac
+}
+
+complete -o nospace -F _hdat hdat

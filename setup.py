@@ -6,6 +6,7 @@ from setuptools import setup, find_packages
 from os import path
 
 here = path.abspath(path.dirname(__file__))
+completion_dir = path.join(path.expanduser('~'), 'bash_completion.d/')
 
 description = 'High Dimensional Algorithm Tester: A tool for manually verifying high-dimensionality algorithms.'
 
@@ -46,7 +47,7 @@ setup(
     },
 
     package_data={},
-    data_files=[],
+    data_files=[(completion_dir, ['hdat/hdat_completion'])],
     entry_points={
         'console_scripts': [
             'hdat = hdat.main:main'
