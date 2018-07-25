@@ -46,7 +46,7 @@ setup(
     },
 
     package_data={},
-    data_files=[],
+    data_files=[('/etc/bash_completion.d/', ['hdat/hdat_completion'])],
     entry_points={
         'console_scripts': [
             'hdat = hdat.main:main'
