@@ -25,8 +25,6 @@ def get_nested_item(result, nested_key):
         else:
             return get_nested_item(result[nested_key[0]], nested_key[1:])
     except TypeError:
-        error_msg = 'Result value "{}" is not iterable and has no specifier "{}"\n'
-        sys.stderr.write(error_msg.format(result, nested_key[0]))
         return
 
 
@@ -38,20 +36,20 @@ def print_results(results, input_keys_str):
     key_parts = [key.split('.') for key in input_keys]
 
     keys = set()
-    all_data = []
+    all_result_data = []
     for result in results:
         result_data = defaultdict(lambda: '')
-        expanded_keys_gen = [expand_key_parts(result, ks) for ks in key_parts]
-        expanded_keys = chain.from_iterable(expanded_keys_gen)
+        expanded_keys_gens = [expand_key_parts(result, ks) for ks in key_parts]
+        expanded_keys = chain.from_iterable(expanded_keys_gens)
         for expanded_key in expanded_keys:
             result_key = '.'.join(expanded_key)
             keys.add(result_key)
             result_data[result_key] = get_nested_item(result, expanded_key)
-        all_data.append(result_data)
+        all_result_data.append(result_data)
 
     output_writer = csv.writer(sys.stdout)
     sorted_keys = sorted(list(keys))
     output_writer.writerow(sorted_keys)
-    for result_data in all_data:
+    for result_data in all_result_data:
         data_out = [result_data[key] for key in sorted_keys]
         output_writer.writerow(data_out)
