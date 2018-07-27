@@ -2,7 +2,6 @@ import hdat.hdat_cli as hdat
 
 
 class TestGetKeys:
-
     def test_keys_default(self, mock_results, mock_keys):
         assert hdat.get_result_keys(mock_results[0], mock_keys) == (
             ['case_id', 'ran_on', 'result_id']
