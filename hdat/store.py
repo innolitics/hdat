@@ -20,7 +20,7 @@ class Archive:
         else:
             return self.read_result(result_filename)
 
-    def select_recent(self, i, *args):
+    def select_recent(self, suites, i, *args):
         top_directory = os.path.join(self.root, *args)
         if not os.path.isdir(top_directory):
             msg = "Selected case directory {} does not exist or is not a directory"
@@ -50,20 +50,21 @@ class Archive:
         else:
             return self.read_result(os.path.join(top_directory, recent_id))
 
-    def select_recents_suite(self, *args):
+    def select_recents_suite(self, suites, *args):
         top_directory = os.path.join(self.root, *args)
         if not os.path.isdir(top_directory):
             msg = "Selected suite directory {} does not exist or is not a directory"
             raise AbortError(msg.format(top_directory))
-
         for entry in os.listdir(top_directory):
-            if not entry.startswith('.') and os.path.isdir(os.path.join(top_directory, entry)):
-                yield self.select_recent(-1, *(args+(entry,)))
+            if (not entry.startswith('.') and
+                    os.path.isdir(os.path.join(top_directory, entry)) and
+                    entry in suites[str(*args)].collect().keys()):
+                yield self.select_recent(suites, -1, *(args+(entry,)))
 
-    def select_recents_all(self):
+    def select_recents_all(self, suites):
         for entry in os.listdir(self.root):
             if not entry.startswith('.') and os.path.isdir(os.path.join(self.root, entry)):
-                yield from self.select_recents_suite(entry)
+                yield from self.select_recents_suite(suites, entry)
 
     def insert(self, result):
         suite_id = result['suite_id']

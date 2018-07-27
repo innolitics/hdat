@@ -66,7 +66,7 @@ def mock_results():
         },
         {
             'suite_id': 'b',
-            'case_id': '1',
+            'case_id': '3',
             'result_id': '103_r4',
             'ran_on': 104,
         },

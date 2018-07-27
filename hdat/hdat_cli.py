@@ -76,36 +76,33 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
             raise AbortError(_format_cases_status(cases_status))
     elif args.command == 'show':
         if not args.resultspec:
-            results = resolve_resultspecs(archive, args.resultspec)
+            results = resolve_resultspecs(archive, suites, args.resultspec)
             for result in results:
                 show_result(suites, result)
         for resultspec in args.resultspec:
-            results = resolve_resultspecs(archive, resultspec)
+            results = resolve_resultspecs(archive, suites, resultspec)
             for result in results:
-                if result['case_id'] in suites[result['suite_id']].collect().keys():
-                    show_result(suites, result)
-                else:
-                    print('Selected case {} does not exist in suite {}'.format(result['case_id'], result['suite_id']))
+                show_result(suites, result)
     elif args.command == 'runshow':
         cases = resolve_casespecs(suites, args.casespecs)
         cases_status = run_cases(suites, golden_store, archive, git_info, cases)
         if cases_status['error'] > 0:
             raise AbortError(_format_cases_status(cases_status))
         for casespec in args.casespecs:
-            results = resolve_resultspecs(archive, casespec)
+            results = resolve_resultspecs(archive, suites, casespec)
             for result in results:
                 show_result(suites, result)
     elif args.command == 'diff':
-        golden_results = resolve_resultspecs(archive, args.resultspec[0])
-        results = resolve_resultspecs(archive, args.resultspec[1])
+        golden_results = resolve_resultspecs(archive, suites, args.resultspec[0])
+        results = resolve_resultspecs(archive, suites, args.resultspec[1])
         for golden_result, result in zip(golden_results, results):
             diff_results(suites, golden_result, result)
     elif args.command == 'verify':
-        results = resolve_resultspecs(archive, args.resultspec)
+        results = resolve_resultspecs(archive, suites, args.resultspec)
         for result in results:
             golden_store.insert(result)
     elif args.command == 'csv':
-        results = resolve_resultspecs(archive, args.resultspec)
+        results = resolve_resultspecs(archive, suites, args.resultspec)
         print_results(results, args.keys)
 
 

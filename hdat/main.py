@@ -26,7 +26,7 @@ def main():
         golden_store_location = os.path.join(repo_directory, 'golden_results')
         golden_store = GoldenStore(golden_store_location)
 
-        suites = collect_suites(cwd)
+        suites = collect_suites(repo_directory)
 
         hdat_cli(sys.argv[1:], suites, golden_store, archive, git_info)
 
