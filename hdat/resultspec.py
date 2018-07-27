@@ -71,3 +71,6 @@ def print_resultspec(result):
         return '{}/{}/{}'.format(suite_id, case_id, result_id)
     except KeyError:
         return 'Invalid result "{}"'.format(repr(result))
+    except TypeError:
+        print(result)
+        return
