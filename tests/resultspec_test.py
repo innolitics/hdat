@@ -63,5 +63,4 @@ class TestResolveResultSpec:
 
     def test_most_recent_missing(self, archive, suites):
         resultspec = 'a/huh'
-        with pytest.raises(AbortError):
-            resolve_resultspecs(archive, suites, resultspec)
+        assert 'does not exist' in resolve_resultspecs(archive, suites, resultspec)

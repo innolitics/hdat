@@ -27,7 +27,7 @@ def resolve_resultspecs(archive, suites, resultspec):
     if pick_recent or pick_by_index:
         if resultspec_parts[1] not in suites[resultspec_parts[0]].collect().keys():
             msg = 'Unable to locate "{}"; the case "{}" does not exist within suite "{}"'
-            raise AbortError(msg.format(resultspec, resultspec_parts[1], resultspec_parts[0]))
+            return (msg.format(resultspec, resultspec_parts[1], resultspec_parts[0]))
         if pick_recent:
             i = -1
         else:
