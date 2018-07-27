@@ -62,7 +62,7 @@ def _format_cases_status(cases_status):
 
 def hdat_cli(arguments, suites, golden_store, archive, git_info):
     args = parse_arguments(arguments)
-    exit_status = 0
+    exit_code = 0
 
     if args.command is None:
         parse_arguments(['-h'])
@@ -79,17 +79,23 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         if not args.resultspec:
             results = resolve_resultspecs(archive, suites, args.resultspec)
             for result in results:
-                show_result(suites, result)
+                exit_status = show_result(suites, result)
+                if exit_status == 1:
+                    exit_code = 1
         for resultspec in args.resultspec:
             results = resolve_resultspecs(archive, suites, resultspec)
             if isinstance(results, str):
-                exit_status = 1
+                exit_code = 1
                 print(results)
             else:
                 for result in results:
-                    show_result(suites, result)
-        if exit_status == 1:
-                sys.exit(1)
+                    if isinstance(results, str):
+                        exit_code = 1
+                        print(result)
+                    else:
+                        exit_status = show_result(suites, result)
+                        if exit_status == 1:
+                            exit_code = 1
     elif args.command == 'runshow':
         cases = resolve_casespecs(suites, args.casespecs)
         cases_status = run_cases(suites, golden_store, archive, git_info, cases)
@@ -98,53 +104,73 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         for casespec in args.casespecs:
             results = resolve_resultspecs(archive, suites, casespec)
             for result in results:
-                show_result(suites, result)
+                if isinstance(results, str):
+                    exit_code = 1
+                    print(result)
+                else:
+                    exit_status = show_result(suites, result)
+                    if exit_status == 1:
+                        exit_code = 1
     elif args.command == 'diff':
         golden_results = resolve_resultspecs(archive, suites, args.resultspec[0])
         results = resolve_resultspecs(archive, suites, args.resultspec[1])
         if isinstance(golden_results, str) or isinstance(results, str):
-            exit_status = 1
+            exit_code = 1
             if isinstance(golden_results, str):
                 print(golden_results)
             if isinstance(results, str):
                 print(results)
         else:
             for golden_result, result in zip(golden_results, results):
-                diff_results(suites, golden_result, result)
+                exit_code = diff_results(suites, golden_result, result)
     elif args.command == 'verify':
         results = resolve_resultspecs(archive, suites, args.resultspec)
         if isinstance(results, str):
-            exit_status = 1
+            exit_code = 1
             print(results)
         else:
             for result in results:
-                golden_store.insert(result)
-        if exit_status == 1:
-                sys.exit(1)
+                if isinstance(result, str):
+                    exit_code = 1
+                    print(result)
+                else:
+                    golden_store.insert(result)
     elif args.command == 'csv':
         results = resolve_resultspecs(archive, suites, args.resultspec)
         if isinstance(results, str):
-            exit_status = 1
+            exit_code = 1
             print(results)
         else:
-            print_results(results, args.keys)
-        if exit_status == 1:
-                sys.exit(1)
+            exit_code = print_results(results, args.keys)
+    sys.exit(exit_code)
 
 
 def show_result(suites, result):
-    suite = select_suite(suites, result['suite_id'])
+    try:
+        suite = select_suite(suites, result['suite_id'])
+    except TypeError:
+        print(result)
+        return 1
     try:
         suite.show(result)
     except Exception as e:
         traceback.print_exc()
         msg = 'Error when attempting to show "{}": {}'
         raise AbortError(msg.format(print_resultspec(result), e))
+    return 0
 
 
 def diff_results(suites, golden_result, result):
-    suite_id = result['suite_id']
-    golden_suite_id = golden_result['suite_id']
+    try:
+        suite_id = result['suite_id']
+    except TypeError:
+        print(result)
+        return 1
+    try:
+        golden_suite_id = golden_result['suite_id']
+    except TypeError:
+        print(golden_result)
+        return 1
 
     if golden_suite_id != suite_id:
         msg = 'Can not diff results from different suites "{}" and "{}"'
@@ -157,6 +183,7 @@ def diff_results(suites, golden_result, result):
         traceback.print_exc()
         msg = 'Error when attempting to show "{}": {}'
         raise AbortError(msg.format(print_resultspec(result), e))
+    return 0
 
 
 def get_result_keys(result, input_key_list):
@@ -223,6 +250,13 @@ def print_results(results, input_keys_str):
     distinct_keys = []
     results_list = [result for result in results]
     data_list = []
+    exit_code = 0
+
+    for result in results_list:
+        if isinstance(result, str):
+            exit_code = 1
+            print(result)
+            results_list.remove(result)
 
     if not input_keys_str:
         input_keys_str = 'case_id,result_id,ran_on,commit,metrics.*'
@@ -248,6 +282,7 @@ def print_results(results, input_keys_str):
         if data_list:
             data_out = ", ".join(data_list)
             print(data_out)
+    return exit_code
 
 
 def union(list1, list2):

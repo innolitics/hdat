@@ -23,6 +23,11 @@ class Archive:
     def select_recent(self, suites, i, *args):
         top_directory = os.path.join(self.root, *args)
         if not os.path.isdir(top_directory):
+            if args[1] in suites[str(args[0])].collect().keys():
+                msg = 'The case "{}" exists within suite "{}", ' + \
+                      'but has no result recorded. ' + \
+                      'Please run the case or suite first.'
+                return (msg.format(args[1], args[0]))
             msg = "Selected case directory {} does not exist or is not a directory"
             raise AbortError(msg.format(top_directory))
 
@@ -55,6 +60,12 @@ class Archive:
         if not os.path.isdir(top_directory):
             msg = "Selected suite directory {} does not exist or is not a directory"
             raise AbortError(msg.format(top_directory))
+        for case in suites[str(args[0])].collect().keys():
+            if case not in os.listdir(top_directory):
+                msg = 'The case "{}" exists within suite "{}", ' + \
+                      'but has no result recorded. ' + \
+                      'Please run the case or suite first.'
+                yield msg.format(case, args[0])
         for entry in os.listdir(top_directory):
             if (not entry.startswith('.') and
                     os.path.isdir(os.path.join(top_directory, entry)) and
