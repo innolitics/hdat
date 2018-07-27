@@ -8,7 +8,7 @@ from hdat.util import AbortError, repository_root
 
 @pytest.fixture
 def suites():
-    yield collect_suites(repository_root(os.getcwd()))
+    return collect_suites(repository_root(os.getcwd()))
 
 
 class TestResolveResultSpec:
