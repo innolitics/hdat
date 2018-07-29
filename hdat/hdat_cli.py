@@ -1,5 +1,6 @@
 import argparse
 import traceback
+import sys
 
 from .resultspec import resolve_resultspecs, print_resultspec
 from .casespec import resolve_casespecs, select_suite
