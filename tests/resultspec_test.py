@@ -1,5 +1,4 @@
 import pytest
-import os
 
 from hdat.resultspec import resolve_resultspecs
 from hdat.util import AbortError
