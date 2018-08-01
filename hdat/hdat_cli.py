@@ -90,7 +90,7 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         golden_results = resolve_resultspecs(archive, suites, [args.resultspecs[0]])
         results = resolve_resultspecs(archive, suites, [args.resultspecs[1]])
         for golden_result, result in zip(golden_results, results):
-                diff_results(suites, golden_result, result)
+            diff_results(suites, golden_result, result)
     elif args.command == 'verify':
         results = resolve_resultspecs(archive, suites, args.resultspecs)
         for result in results:

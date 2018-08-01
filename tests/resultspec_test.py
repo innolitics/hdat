@@ -1,7 +1,7 @@
 import pytest
 
 from hdat.resultspec import resolve_resultspec
-from hdat.util import AbortError, MissingCaseError, UnusedCaseError
+from hdat.util import AbortError
 
 
 class TestResolveResultSpec:
@@ -56,17 +56,23 @@ class TestResolveResultSpec:
 
     def test_most_recent_missing(self, archive, mock_suites):
         resultspec = 'a/huh'
-        with pytest.raises(MissingCaseError):
+        try:
             resolve_resultspec(archive, mock_suites, resultspec)
+        except AbortError as e:
+            assert 'the case "huh" does not exist within suite "a"' in str(e)
 
     def test_unused_case_all(self, unused_case_archive, mock_suites):
         resultspec = ''
         results = resolve_resultspec(unused_case_archive, mock_suites, resultspec)
-        with pytest.raises(UnusedCaseError):
+        try:
             for result in results:
                 print(result)
+        except AbortError as e:
+            assert 'no result recorded' in str(e)
 
     def test_unused_case(self, unused_case_archive, mock_suites):
         resultspec = 'a/2'
-        with pytest.raises(UnusedCaseError):
+        try:
             resolve_resultspec(unused_case_archive, mock_suites, resultspec)
+        except AbortError as e:
+            assert 'no result recorded' in str(e)

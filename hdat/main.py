@@ -16,6 +16,7 @@ def main():
     try:
         git_info = git_info_from_directory(cwd)
         repo_directory = repository_root(cwd)
+        suites = collect_suites(repo_directory)
 
         if 'HDAT_ARCHIVE' in os.environ:
             archive_location = os.environ['HDAT_ARCHIVE']
@@ -25,8 +26,6 @@ def main():
 
         golden_store_location = os.path.join(repo_directory, 'golden_results')
         golden_store = GoldenStore(golden_store_location)
-
-        suites = collect_suites(repo_directory)
 
         hdat_cli(sys.argv[1:], suites, golden_store, archive, git_info)
 
