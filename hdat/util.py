@@ -6,6 +6,14 @@ class AbortError(Exception):
     pass
 
 
+class MissingCaseError(Exception):
+    pass
+
+
+class UnusedCaseError(Exception):
+    pass
+
+
 def print_error(message):
     print(message, file=sys.stderr)
 

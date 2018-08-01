@@ -4,7 +4,7 @@ import copy
 import pickle
 from collections import namedtuple
 
-from .util import AbortError
+from .util import AbortError, UnusedCaseError
 
 
 class Archive:
@@ -27,7 +27,7 @@ class Archive:
                 msg = 'The case "{}" exists within suite "{}", ' + \
                       'but has no result recorded. ' + \
                       'Please run the case or suite first.'
-                return (msg.format(args[1], args[0]))
+                raise UnusedCaseError(msg.format(args[1], args[0]))
             msg = "Selected case directory {} does not exist or is not a directory"
             raise AbortError(msg.format(top_directory))
 
@@ -60,22 +60,32 @@ class Archive:
         if not os.path.isdir(top_directory):
             msg = "Selected suite directory {} does not exist or is not a directory"
             raise AbortError(msg.format(top_directory))
+        # catch unused cases within a suite when resultspec is an entire suite
         for case in suites[str(args[0])].collect().keys():
             if case not in os.listdir(top_directory):
                 msg = 'The case "{}" exists within suite "{}", ' + \
                       'but has no result recorded. ' + \
                       'Please run the case or suite first.'
-                yield msg.format(case, args[0])
+                raise UnusedCaseError(msg.format(case, args[0]))
         for entry in os.listdir(top_directory):
             if (not entry.startswith('.') and
                     os.path.isdir(os.path.join(top_directory, entry)) and
                     entry in suites[str(*args)].collect().keys()):
-                yield self.select_recent(suites, -1, *(args+(entry,)))
+                try:
+                    yield self.select_recent(suites, -1, *(args+(entry,)))
+                except UnusedCaseError as e:
+                    raise UnusedCaseError(str(e))
+# hard to handle this one: want to raise an error but return the rest
+# if we move this past the `for entry in` loop, it works for a single unused case but not if there are multiple
+# using a boolean to tell if there are any errors and printing as they come
 
     def select_recents_all(self, suites):
         for entry in os.listdir(self.root):
             if not entry.startswith('.') and os.path.isdir(os.path.join(self.root, entry)):
-                yield from self.select_recents_suite(suites, entry)
+                try:
+                    yield from self.select_recents_suite(suites, entry)
+                except UnusedCaseError as e:
+                    raise UnusedCaseError(str(e))
 
     def insert(self, result):
         suite_id = result['suite_id']

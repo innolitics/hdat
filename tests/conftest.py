@@ -81,5 +81,30 @@ def archive(tmp_archive, mock_results):
 
 
 @pytest.fixture
+def unused_case_results():
+    return [
+        {
+            'suite_id': 'a',
+            'case_id': '1',
+            'result_id': 'r1',
+            'ran_on': 100,
+        },
+        {
+            'suite_id': 'b',
+            'case_id': '3',
+            'result_id': '103_r4',
+            'ran_on': 104,
+        },
+    ]
+
+
+@pytest.fixture
+def unused_case_archive(tmp_archive, unused_case_results):
+    for result in unused_case_results:
+        tmp_archive.insert(result)
+    return tmp_archive
+
+
+@pytest.fixture
 def mock_keys():
     return ['case_id', 'result_id', 'commit', 'ran_on', 'metrics.*']

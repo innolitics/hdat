@@ -37,13 +37,7 @@ def print_results(results, input_keys_str):
 
     keys = set()
     all_result_data = []
-    exit_code = 0
     for result in results:
-        if isinstance(result, str):
-            exit_code = 1
-            print(result)
-            continue
-
         result_data = defaultdict(lambda: '')
         expanded_keys_gens = [expand_key_parts(result, ks) for ks in key_parts]
         expanded_keys = chain.from_iterable(expanded_keys_gens)
@@ -59,4 +53,3 @@ def print_results(results, input_keys_str):
     for result_data in all_result_data:
         data_out = [result_data[key] for key in sorted_keys]
         output_writer.writerow(data_out)
-    return exit_code

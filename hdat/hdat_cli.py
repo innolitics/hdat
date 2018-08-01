@@ -1,6 +1,5 @@
 import argparse
 import traceback
-import sys
 
 from .resultspec import resolve_resultspecs, print_resultspec
 from .casespec import resolve_casespecs, select_suite
@@ -25,27 +24,27 @@ def parse_arguments(arguments):
     show_help = 'visualize a single result'
     show_parser = subparsers.add_parser('show', help=show_help)
     show_result_help = 'result specifier to show'
-    show_parser.add_argument('resultspec', nargs='*', default='', metavar='<result>', help=show_result_help)
+    show_parser.add_argument('resultspecs', nargs='*', default=[''], metavar='<result>', help=show_result_help)
 
     runshow_help = 'run then visualize a single result'
     runshow_parser = subparsers.add_parser('runshow', help=runshow_help)
     runshow_case_help = 'case specifier to run and show results'
-    runshow_parser.add_argument('casespecs', nargs='*', default='', metavar='<case>', help=runshow_case_help)
+    runshow_parser.add_argument('casespecs', nargs='*', default=[''], metavar='<case>', help=runshow_case_help)
 
     diff_help = 'compare two results'
     diff_parser = subparsers.add_parser('diff', help=diff_help)
     diff_result_help = 'results being compared'
-    diff_parser.add_argument('resultspec', nargs=2, metavar='<result>', help=diff_result_help)
+    diff_parser.add_argument('resultspecs', nargs=2, metavar='<result>', help=diff_result_help)
 
     verify_help = 'move result metrics from archive to the golden store'
     verify_parser = subparsers.add_parser('verify', help=verify_help)
     verify_result_help = 'results to be stripped and moved into the golden store'
-    verify_parser.add_argument('resultspec', nargs='?', default='', metavar='<result>', help=verify_result_help)
+    verify_parser.add_argument('resultspecs', nargs='?', default=[''], metavar='<result>', help=verify_result_help)
 
     csv_help = 'print results into a CSV'
     csv_parser = subparsers.add_parser('csv', help=csv_help)
     csv_result_help = 'results to be printed'
-    csv_parser.add_argument('resultspec', nargs='?', default='', metavar='<result>', help=csv_result_help)
+    csv_parser.add_argument('resultspecs', nargs='*', default=[''], metavar='<result>', help=csv_result_help)
     csv_keys_help = 'keys specifier to print data (\'*\' may be used as a wildcard)'
     csv_parser.add_argument('--keys', nargs='?', dest='keys', help=csv_keys_help)
 
@@ -63,11 +62,9 @@ def _format_cases_status(cases_status):
 
 def hdat_cli(arguments, suites, golden_store, archive, git_info):
     args = parse_arguments(arguments)
-    exit_code = 0
 
     if args.command is None:
         parse_arguments(['-h'])
-
     if args.command == 'list':
         cases = resolve_casespecs(suites, args.casespecs)
         print("\n".join(['{}/{}'.format(suite_id, case_id) for suite_id, case_id in cases]))
@@ -77,26 +74,9 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         if cases_status['pass'] < len(cases):
             raise AbortError(_format_cases_status(cases_status))
     elif args.command == 'show':
-        if not args.resultspec:
-            results = resolve_resultspecs(archive, suites, args.resultspec)
-            for result in results:
-                exit_status = show_result(suites, result)
-                if exit_status == 1:
-                    exit_code = 1
-        for resultspec in args.resultspec:
-            results = resolve_resultspecs(archive, suites, resultspec)
-            if isinstance(results, str):
-                exit_code = 1
-                print(results)
-            else:
-                for result in results:
-                    if isinstance(results, str):
-                        exit_code = 1
-                        print(result)
-                    else:
-                        exit_status = show_result(suites, result)
-                        if exit_status == 1:
-                            exit_code = 1
+        results = resolve_resultspecs(archive, suites, args.resultspecs)
+        for result in results:
+            show_result(suites, result)
     elif args.command == 'runshow':
         cases = resolve_casespecs(suites, args.casespecs)
         cases_status = run_cases(suites, golden_store, archive, git_info, cases)
@@ -105,73 +85,34 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         for casespec in args.casespecs:
             results = resolve_resultspecs(archive, suites, casespec)
             for result in results:
-                if isinstance(results, str):
-                    exit_code = 1
-                    print(result)
-                else:
-                    exit_status = show_result(suites, result)
-                    if exit_status == 1:
-                        exit_code = 1
+                show_result(suites, result)
     elif args.command == 'diff':
-        golden_results = resolve_resultspecs(archive, suites, args.resultspec[0])
-        results = resolve_resultspecs(archive, suites, args.resultspec[1])
-        if isinstance(golden_results, str) or isinstance(results, str):
-            exit_code = 1
-            if isinstance(golden_results, str):
-                print(golden_results)
-            if isinstance(results, str):
-                print(results)
-        else:
-            for golden_result, result in zip(golden_results, results):
-                exit_code = diff_results(suites, golden_result, result)
+        golden_results = resolve_resultspecs(archive, suites, [args.resultspecs[0]])
+        results = resolve_resultspecs(archive, suites, [args.resultspecs[1]])
+        for golden_result, result in zip(golden_results, results):
+                diff_results(suites, golden_result, result)
     elif args.command == 'verify':
-        results = resolve_resultspecs(archive, suites, args.resultspec)
-        if isinstance(results, str):
-            exit_code = 1
-            print(results)
-        else:
-            for result in results:
-                if isinstance(result, str):
-                    exit_code = 1
-                    print(result)
-                else:
-                    golden_store.insert(result)
+        results = resolve_resultspecs(archive, suites, args.resultspecs)
+        for result in results:
+            golden_store.insert(result)
     elif args.command == 'csv':
-        results = resolve_resultspecs(archive, suites, args.resultspec)
-        if isinstance(results, str):
-            exit_code = 1
-            print(results)
-        else:
-            exit_code = print_results(results, args.keys)
-    sys.exit(exit_code)
+        results = resolve_resultspecs(archive, suites, args.resultspecs)
+        print_results(results, args.keys)
 
 
 def show_result(suites, result):
-    try:
-        suite = select_suite(suites, result['suite_id'])
-    except TypeError:
-        print(result)
-        return 1
+    suite = select_suite(suites, result['suite_id'])
     try:
         suite.show(result)
     except Exception as e:
         traceback.print_exc()
         msg = 'Error when attempting to show "{}": {}'
         raise AbortError(msg.format(print_resultspec(result), e))
-    return 0
 
 
 def diff_results(suites, golden_result, result):
-    try:
-        suite_id = result['suite_id']
-    except TypeError:
-        print(result)
-        return 1
-    try:
-        golden_suite_id = golden_result['suite_id']
-    except TypeError:
-        print(golden_result)
-        return 1
+    suite_id = result['suite_id']
+    golden_suite_id = golden_result['suite_id']
 
     if golden_suite_id != suite_id:
         msg = 'Can not diff results from different suites "{}" and "{}"'
@@ -184,4 +125,3 @@ def diff_results(suites, golden_result, result):
         traceback.print_exc()
         msg = 'Error when attempting to show "{}": {}'
         raise AbortError(msg.format(print_resultspec(result), e))
-    return 0

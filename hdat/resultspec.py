@@ -1,10 +1,24 @@
 import os
 import traceback
 
-from .util import AbortError
+from .util import AbortError, MissingCaseError, UnusedCaseError
 
 
-def resolve_resultspecs(archive, suites, resultspec):
+def resolve_resultspecs(archive, suites, resultspecs):
+    errors = []
+    for resultspec in resultspecs:
+        try:
+            results = resolve_resultspec(archive, suites, resultspec)
+            for result in results:
+                yield result
+        except (MissingCaseError, UnusedCaseError) as e:
+            errors.append(str(e))
+    if errors:
+        error_msg = '\n'.join(errors)
+        raise AbortError(error_msg)
+
+
+def resolve_resultspec(archive, suites, resultspec):
     if os.path.isfile(resultspec):
         try:
             return [archive.read_result(resultspec)]
@@ -27,7 +41,7 @@ def resolve_resultspecs(archive, suites, resultspec):
     if pick_recent or pick_by_index:
         if resultspec_parts[1] not in suites[resultspec_parts[0]].collect().keys():
             msg = 'Unable to locate "{}"; the case "{}" does not exist within suite "{}"'
-            return (msg.format(resultspec, resultspec_parts[1], resultspec_parts[0]))
+            raise MissingCaseError(msg.format(resultspec, resultspec_parts[1], resultspec_parts[0]))
         if pick_recent:
             i = -1
         else:
@@ -43,6 +57,8 @@ def resolve_resultspecs(archive, suites, resultspec):
         except IndexError:
             msg = 'Unable to locate any results matching "{}", there are more than {} results present.'
             raise AbortError(msg.format(resultspec, i))
+        except UnusedCaseError as e:
+            raise UnusedCaseError(str(e))
     elif pick_by_result_id:
         result = archive.select(*resultspec_parts)
         if result is None:
