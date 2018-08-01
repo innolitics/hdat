@@ -6,7 +6,8 @@ from hdat.hdat_cli import hdat_cli
 from hdat.suite import collect_suites
 from hdat.source_control import git_info_from_directory
 from hdat.util import repository_root, print_error, AbortError
-from hdat.store import Archive, GoldenStore
+from hdat.goldenstore import GoldenStore
+from hdat.archive import Archive
 
 
 def main():

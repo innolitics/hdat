@@ -2,7 +2,8 @@ import tempfile
 
 import pytest
 
-from hdat.store import GoldenStore, Archive
+from hdat.goldenstore import GoldenStore
+from hdat.archive import Archive
 from test_suite_hdat import BasicSuiteA, BasicSuiteB
 
 
