@@ -39,7 +39,7 @@ def parse_arguments(arguments):
     verify_help = 'move result metrics from archive to the golden store'
     verify_parser = subparsers.add_parser('verify', help=verify_help)
     verify_result_help = 'results to be stripped and moved into the golden store'
-    verify_parser.add_argument('resultspecs', nargs='?', default=[''], metavar='<result>', help=verify_result_help)
+    verify_parser.add_argument('resultspecs', nargs='*', default=[''], metavar='<result>', help=verify_result_help)
 
     csv_help = 'print results into a CSV'
     csv_parser = subparsers.add_parser('csv', help=csv_help)
