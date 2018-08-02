@@ -11,6 +11,7 @@ class Archive:
         os.makedirs(self.root, exist_ok=True)
 
     def select(self, suite_id, case_id, result_id):
+        """Return a single result specified"""
         result_filename = self._result_filename(suite_id, case_id, result_id)
 
         if not os.path.isfile(result_filename):
@@ -19,6 +20,8 @@ class Archive:
             return self.read_result(result_filename)
 
     def select_recent(self, suites, i, *args):
+        """Return the most recent result of a specified case.
+        *args -- suite and case ID selectors ['a', '1']"""
         top_directory = os.path.join(self.root, *args)
         if not os.path.isdir(top_directory):
             if args[1] in suites[str(args[0])].collect().keys():
@@ -54,6 +57,8 @@ class Archive:
             return self.read_result(os.path.join(top_directory, recent_id))
 
     def select_recents_suite(self, suites, *args):
+        """Return the most recent result of each case within a specified suite.
+        *args -- suite ID selector ['a']"""
         top_directory = os.path.join(self.root, *args)
         if not os.path.isdir(top_directory):
             msg = "Selected suite directory {} does not exist or is not a directory"

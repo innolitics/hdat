@@ -25,10 +25,15 @@ def resolve_resultspec(archive, suites, resultspec):
     else:
         resultspec_parts = resultspec.split('/')
 
+    # Pull most recent result from all cases available: resultspec == ''
     pick_recents_all_suites = len(resultspec_parts) == 0
+    # Pull most recent result from all cases in a suite: resultspec == <suite_id>
     pick_recents_one_suite = len(resultspec_parts) == 1
+    # Pull most recent result from a case: resultspec == <suite_id>/<case_id>
     pick_recent = len(resultspec_parts) == 2
+    # Pull (n+1)th most recent reuslt from a case: resultspec == <suite_id>/<case_id>/~<n>
     pick_by_index = len(resultspec_parts) == 3 and resultspec_parts[2].startswith('~')
+    # Pull specific result: resultspec == <suite_id>/<case_id>/<result_id>
     pick_by_result_id = len(resultspec_parts) == 3 and not pick_by_index
 
     if pick_recent or pick_by_index:
