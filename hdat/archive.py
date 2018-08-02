@@ -1,9 +1,8 @@
 import os
 import pickle
 import traceback
-from collections import namedtuple
 
-from hdat.util import AbortError
+from collections import namedtuple
 from .util import AbortError
 
 
