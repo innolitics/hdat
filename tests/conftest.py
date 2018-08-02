@@ -15,9 +15,9 @@ def tmp_golden_store():
 
 
 @pytest.fixture
-def tmp_archive():
+def tmp_archive(mock_suites):
     tmp_directory = tempfile.TemporaryDirectory()
-    yield Archive(tmp_directory.name)
+    yield Archive(tmp_directory.name, mock_suites)
     tmp_directory.cleanup()
 
 

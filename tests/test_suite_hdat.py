@@ -1,6 +1,6 @@
 from hdat.suite import Suite
 from collections import OrderedDict
-from hdat.resultspec import print_resultspec
+from hdat.archive import print_resultspec
 
 
 class BaseSuite(Suite):

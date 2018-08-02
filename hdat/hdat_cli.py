@@ -1,7 +1,7 @@
 import argparse
 import traceback
 
-from .resultspec import resolve_resultspecs, print_resultspec
+from .archive import print_resultspec
 from .casespec import resolve_casespecs, select_suite
 from .reports import print_results
 from .runner import run_cases
@@ -74,7 +74,7 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         if cases_status['pass'] < len(cases):
             raise AbortError(_format_cases_status(cases_status))
     elif args.command == 'show':
-        results = resolve_resultspecs(archive, suites, args.resultspecs)
+        results = archive.resolve_resultspecs(args.resultspecs)
         for result in results:
             show_result(suites, result)
     elif args.command == 'runshow':
@@ -83,20 +83,20 @@ def hdat_cli(arguments, suites, golden_store, archive, git_info):
         if cases_status['error'] > 0:
             raise AbortError(_format_cases_status(cases_status))
         for casespec in args.casespecs:
-            results = resolve_resultspecs(archive, suites, casespec)
+            results = archive.resolve_resultspecs(casespec)
             for result in results:
                 show_result(suites, result)
     elif args.command == 'diff':
-        golden_results = resolve_resultspecs(archive, suites, [args.resultspecs[0]])
-        results = resolve_resultspecs(archive, suites, [args.resultspecs[1]])
+        golden_results = archive.resolve_resultspecs([args.resultspecs[0]])
+        results = archive.resolve_resultspecs([args.resultspecs[1]])
         for golden_result, result in zip(golden_results, results):
             diff_results(suites, golden_result, result)
     elif args.command == 'verify':
-        results = resolve_resultspecs(archive, suites, args.resultspecs)
+        results = archive.resolve_resultspecs(args.resultspecs)
         for result in results:
             golden_store.insert(result)
     elif args.command == 'csv':
-        results = resolve_resultspecs(archive, suites, args.resultspecs)
+        results = archive.resolve_resultspecs(args.resultspecs)
         print_results(results, args.keys)
 
 

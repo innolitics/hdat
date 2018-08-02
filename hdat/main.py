@@ -23,7 +23,7 @@ def main():
             archive_location = os.environ['HDAT_ARCHIVE']
         else:
             archive_location = os.path.join(repo_directory, '.hdatarchive')
-        archive = Archive(archive_location)
+        archive = Archive(archive_location, suites)
 
         golden_store_location = os.path.join(repo_directory, 'golden_results')
         golden_store = GoldenStore(golden_store_location)
