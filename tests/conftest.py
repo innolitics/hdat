@@ -2,7 +2,8 @@ import tempfile
 
 import pytest
 
-from hdat.store import GoldenStore, Archive
+from hdat.goldenstore import GoldenStore
+from hdat.archive import Archive
 from test_suite_hdat import BasicSuiteA, BasicSuiteB
 
 
@@ -66,7 +67,7 @@ def mock_results():
         },
         {
             'suite_id': 'b',
-            'case_id': '1',
+            'case_id': '3',
             'result_id': '103_r4',
             'ran_on': 104,
         },
@@ -76,6 +77,31 @@ def mock_results():
 @pytest.fixture
 def archive(tmp_archive, mock_results):
     for result in mock_results:
+        tmp_archive.insert(result)
+    return tmp_archive
+
+
+@pytest.fixture
+def unused_case_results():
+    return [
+        {
+            'suite_id': 'a',
+            'case_id': '1',
+            'result_id': 'r1',
+            'ran_on': 100,
+        },
+        {
+            'suite_id': 'b',
+            'case_id': '3',
+            'result_id': '103_r4',
+            'ran_on': 104,
+        },
+    ]
+
+
+@pytest.fixture
+def unused_case_archive(tmp_archive, unused_case_results):
+    for result in unused_case_results:
         tmp_archive.insert(result)
     return tmp_archive
 

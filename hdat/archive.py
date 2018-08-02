@@ -1,6 +1,4 @@
 import os
-import json
-import copy
 import pickle
 from collections import namedtuple
 
@@ -13,6 +11,9 @@ class Archive:
         os.makedirs(self.root, exist_ok=True)
 
     def select(self, suite_id, case_id, result_id):
+        """
+        Return a single result specified
+        """
         result_filename = self._result_filename(suite_id, case_id, result_id)
 
         if not os.path.isfile(result_filename):
@@ -20,9 +21,18 @@ class Archive:
         else:
             return self.read_result(result_filename)
 
-    def select_recent(self, i, *args):
+    def select_recent(self, suites, i, *args):
+        """
+        Return the most recent result of a specified case.
+        *args -- suite and case ID selectors ['a', '1']
+        """
         top_directory = os.path.join(self.root, *args)
         if not os.path.isdir(top_directory):
+            if args[1] in suites[str(args[0])].collect().keys():
+                msg = 'The case "{}" exists within suite "{}", ' + \
+                      'but has no result recorded. ' + \
+                      'Please run the case or suite first.'
+                raise AbortError(msg.format(args[1], args[0]))
             msg = "Selected case directory {} does not exist or is not a directory"
             raise AbortError(msg.format(top_directory))
 
@@ -50,20 +60,32 @@ class Archive:
         else:
             return self.read_result(os.path.join(top_directory, recent_id))
 
-    def select_recents_suite(self, *args):
+    def select_recents_suite(self, suites, *args):
+        """
+        Return the most recent result of each case within a specified suite.
+        *args -- suite ID selector ['a']
+        """
         top_directory = os.path.join(self.root, *args)
+        cases = suites[str(*args)].collect().keys()
         if not os.path.isdir(top_directory):
             msg = "Selected suite directory {} does not exist or is not a directory"
             raise AbortError(msg.format(top_directory))
-
+        # catch unused cases within a suite when resultspec is an entire suite
+        for case in cases:
+            if case not in os.listdir(top_directory):
+                msg = 'The case "{}" exists within suite "{}", ' + \
+                      'but has no result recorded. ' + \
+                      'Please run the case or suite first.'
+                raise AbortError(msg.format(case, args[0]))
         for entry in os.listdir(top_directory):
-            if not entry.startswith('.') and os.path.isdir(os.path.join(top_directory, entry)):
-                yield self.select_recent(-1, *(args+(entry,)))
+            case_path = os.path.join(top_directory, entry)
+            if not entry.startswith('.') and os.path.isdir(case_path) and entry in cases:
+                yield self.select_recent(suites, -1, *(args+(entry,)))
 
-    def select_recents_all(self):
+    def select_recents_all(self, suites):
         for entry in os.listdir(self.root):
             if not entry.startswith('.') and os.path.isdir(os.path.join(self.root, entry)):
-                yield from self.select_recents_suite(entry)
+                yield from self.select_recents_suite(suites, entry)
 
     def insert(self, result):
         suite_id = result['suite_id']
@@ -87,44 +109,3 @@ class Archive:
 
     def _result_filename(self, suite_id, case_id, result_id):
         return os.path.join(self.root, suite_id, case_id, result_id + '.pkl')
-
-
-class GoldenStore:
-    def __init__(self, directory):
-        self.root = os.path.abspath(directory)
-        os.makedirs(self.root, exist_ok=True)
-
-    def select_golden(self, suite_id, case_id):
-        golden_filename = self._golden_filename(suite_id, case_id)
-        if not os.path.isfile(golden_filename):
-            return None
-        with open(golden_filename, 'r') as golden_file:
-            return json.load(golden_file)
-
-    def insert(self, result):
-        result = self._strip_result(result)
-
-        suite_id = result['suite_id']
-        case_id = result['case_id']
-
-        suite_directory = os.path.join(self.root, suite_id)
-        os.makedirs(suite_directory, exist_ok=True)
-
-        golden_filename = self._golden_filename(suite_id, case_id)
-        with open(golden_filename, 'w') as golden_file:
-            json.dump(result, golden_file, sort_keys=True, indent=4)
-
-    def _golden_filename(self, suite_id, case_id):
-        return os.path.join(self.root, suite_id, case_id + '.json')
-
-    def _strip_result(self, result):
-        # we don't do a deep copy until we have deleted the potentially large
-        # "context" key
-        shallow_copied_result = copy.copy(result)
-        try:
-            del shallow_copied_result['context']
-            del shallow_copied_result['case_input']
-        except KeyError:
-            pass
-        deeply_copied_result = copy.deepcopy(shallow_copied_result)
-        return deeply_copied_result
