@@ -1,8 +1,8 @@
 import os
 import pickle
-from collections.__init__ import namedtuple
+from collections import namedtuple
 
-from hdat.util import AbortError
+from .util import AbortError
 
 
 class Archive:
@@ -11,7 +11,9 @@ class Archive:
         os.makedirs(self.root, exist_ok=True)
 
     def select(self, suite_id, case_id, result_id):
-        """Return a single result specified"""
+        """
+        Return a single result specified
+        """
         result_filename = self._result_filename(suite_id, case_id, result_id)
 
         if not os.path.isfile(result_filename):
@@ -20,8 +22,10 @@ class Archive:
             return self.read_result(result_filename)
 
     def select_recent(self, suites, i, *args):
-        """Return the most recent result of a specified case.
-        *args -- suite and case ID selectors ['a', '1']"""
+        """
+        Return the most recent result of a specified case.
+        *args -- suite and case ID selectors ['a', '1']
+        """
         top_directory = os.path.join(self.root, *args)
         if not os.path.isdir(top_directory):
             if args[1] in suites[str(args[0])].collect().keys():
@@ -57,23 +61,25 @@ class Archive:
             return self.read_result(os.path.join(top_directory, recent_id))
 
     def select_recents_suite(self, suites, *args):
-        """Return the most recent result of each case within a specified suite.
-        *args -- suite ID selector ['a']"""
+        """
+        Return the most recent result of each case within a specified suite.
+        *args -- suite ID selector ['a']
+        """
         top_directory = os.path.join(self.root, *args)
+        cases = suites[str(*args)].collect().keys()
         if not os.path.isdir(top_directory):
             msg = "Selected suite directory {} does not exist or is not a directory"
             raise AbortError(msg.format(top_directory))
         # catch unused cases within a suite when resultspec is an entire suite
-        for case in suites[str(args[0])].collect().keys():
+        for case in cases:
             if case not in os.listdir(top_directory):
                 msg = 'The case "{}" exists within suite "{}", ' + \
                       'but has no result recorded. ' + \
                       'Please run the case or suite first.'
                 raise AbortError(msg.format(case, args[0]))
         for entry in os.listdir(top_directory):
-            if (not entry.startswith('.') and
-                    os.path.isdir(os.path.join(top_directory, entry)) and
-                    entry in suites[str(*args)].collect().keys()):
+            case_path = os.path.join(top_directory, entry)
+            if not entry.startswith('.') and os.path.isdir(case_path) and entry in cases:
                 yield self.select_recent(suites, -1, *(args+(entry,)))
 
     def select_recents_all(self, suites):
