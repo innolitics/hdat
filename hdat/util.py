@@ -41,3 +41,21 @@ def remove_duplicates(list_w_duplicates):
             seen.add(i)
             list_wout_duplicates.append(i)
     return list_wout_duplicates
+
+
+class Color:
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    RESET = '\033[0m'
+
+
+def colorize(text, color):
+    return color + str(text) + Color.RESET
+
+
+def colorize_by_status(text, status):
+    if status.lower() == 'pass':
+        return colorize(text, Color.GREEN)
+    if status.lower() in ('fail', 'error'):
+        return colorize(text, Color.RED)
+    return text

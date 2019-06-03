@@ -5,7 +5,7 @@ from .resultspec import resolve_resultspecs, print_resultspec
 from .casespec import resolve_casespecs, select_suite
 from .reports import print_results
 from .runner import run_cases
-from .util import AbortError
+from .util import AbortError, colorize_by_status
 
 
 def parse_arguments(arguments):
@@ -53,10 +53,10 @@ def parse_arguments(arguments):
 
 def _format_cases_status(cases_status):
     return 'PASS: {}, FAIL: {}, UNKNOWN: {}, ERROR: {}'.format(
-        cases_status['pass'],
-        cases_status['fail'],
-        cases_status['unknown'],
-        cases_status['error'],
+        colorize_by_status(cases_status['pass'], 'pass'),
+        colorize_by_status(cases_status['fail'], 'fail'),
+        colorize_by_status(cases_status['unknown'], 'unknown'),
+        colorize_by_status(cases_status['error'], 'error'),
     )
 
 

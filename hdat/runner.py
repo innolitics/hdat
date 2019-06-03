@@ -2,6 +2,7 @@ import datetime
 import traceback
 
 from .casespec import print_casespec
+from .util import colorize_by_status
 
 
 def run_cases(suites, golden_store, archive, git_info, cases):
@@ -31,7 +32,7 @@ def run_cases(suites, golden_store, archive, git_info, cases):
             traceback.print_exc()
 
         cases_status[status] += 1
-        print('Case "{}" status: {}\n{}\n'.format(casespec, status.upper(), comments))
+        print('Case "{}" status: {}\n{}\n'.format(casespec, colorize_by_status(status.upper(), status), comments))
 
     return cases_status
 
